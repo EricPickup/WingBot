@@ -43,7 +43,7 @@ router.get('/watson', function(req, res, next){
 router.post('/fetchTwitterData', function(req, res, next){
 	console.log("fetching data...");
 	console.log('python ' + path.join("fetchTwitterData.py") + " " + req.body.twitter_handle + " " + 100)
-	exec('python ' + "fetchTwitterData.py" + " " + req.body.twitter_handle + " " + 10)
+	exec('python ' + "fetchTwitterData.py" + " " + req.body.twitter_handle + " " + 30)
 		.then(function (result) {
 			console.log('python compute.py');
 			exec('python compute.py')

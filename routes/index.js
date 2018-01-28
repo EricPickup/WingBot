@@ -47,7 +47,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 		.then(function (result) {
 			setTimeout(() => {
 				res.send('done');
-			}, 180000)
+			}, 360000)
 			console.log('python compute.py');
 			exec('python compute.py')
 				.then(function (result) {

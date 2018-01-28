@@ -41,13 +41,18 @@ router.get('/watson', function(req, res, next){
 router.post('/fetchTwitterData', function(req, res, next){
 	console.log("fetching data...");
 	var process = spawn('python', [path.join(__dirname, "../fetchTwitterData.py"), req.body.twitter_handle, 1000]);
-	// process.stdout.on('ok', function(data){
-	// 	console.log("done.");
-	// 	res.redirect("/results");
-	// });
-	process.on('close', function(code, signal){
+	process.on('exit', function(code, signal){
 		console.log("Code: "+code);
-		res.redirect("/results");
+		var process2 = spawn('python2.7', [path.join(__dirname, "../compute.py")]);
+		process2.on('exit', function(c, r){
+			var data = require('../dataDump');
+			var mentions = require('../data');
+			data.mentions = mentions.top_mentions;
+			data.pp = mentions.profile_picture_url;
+			data.at = req.body.twitter_handle;
+			console.log(data.pp);
+			res.render("results", data);
+		});
 	});
 	// exec("python "+path.join(__dirname, "../fetchTwitterData.py")+" "+req.body.twitter_handle+" 10", function(err, stdout, stderr){
 	// 	if (err){
@@ -57,6 +62,15 @@ router.post('/fetchTwitterData', function(req, res, next){
 	// 	console.log("done.");
 	// 	res.redirect("/results");
 	// });
+});
+
+router.get('/moose', function(req, res, next){
+	req.setTimeout(0);
+	var process2 = spawn('python', [path.join(__dirname, "../compute.py")]);
+	process2.stdout.on('data', function (data) {
+		console.log(data);
+		res.redirect("/results");
+	});
 });
 
 module.exports = router;

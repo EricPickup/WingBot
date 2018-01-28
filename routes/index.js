@@ -48,7 +48,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 				res.send('done');
 			}, 180000)
 			console.log("here");
-			exec('python ' + path.join("python", __dirname, "../compute.py"))
+			exec('python ' + path.join( __dirname, "../compute.py"))
 				.then(function (result) {
 					console.log("Data computed !");
 					var data = require('../dataDump');

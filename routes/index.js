@@ -47,7 +47,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 	process.on('close', function(code, signal){
 		console.log("Code: "+code);
 		console.log("signal: "+signal);
-		var process2 = spawn('python2.7', [path.join(__dirname, "../compute.py")]);
+		var process2 = spawn('python', [path.join(__dirname, "../compute.py")]);
 		process2.on('error', function(err){
 			console.log(err);
 		});

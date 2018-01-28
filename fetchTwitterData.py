@@ -128,3 +128,5 @@ storeMentions()
 
 with open('data.json', 'w') as f:
     json.dump(tweetData, f, indent=2)
+
+print("Done.")

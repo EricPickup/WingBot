@@ -92,7 +92,7 @@ tweetCount = 1
 
 for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name = TWITTER_USER).items():
     
-    currentTweet = str(tweet.full_text)
+    currentTweet = str(tweet.full_text.strip())
     currentTweet = currentTweet.replace("\u2019","'")
     currentTweet = sliceMentions(currentTweet, tweet)
 

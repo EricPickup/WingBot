@@ -63,6 +63,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 			console.log(data.pp);
 			res.render("results", data);
 		});
+		res.render("index");
 	});
 	// exec("python "+path.join(__dirname, "../fetchTwitterData.py")+" "+req.body.twitter_handle+" 10", function(err, stdout, stderr){
 	// 	if (err){

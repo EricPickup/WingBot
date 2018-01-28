@@ -39,6 +39,7 @@ router.get('/watson', function(req, res, next){
 });
 
 router.post('/fetchTwitterData', function(req, res, next){
+	req.setTimeout(10000);
 	console.log("fetching data...");
 	var process = spawn('python', [path.join(__dirname, "../fetchTwitterData.py"), req.body.twitter_handle, 100]);
 	process.on('error', function (err) {

@@ -51,7 +51,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 		process2.on('error', function(err){
 			console.log(err);
 		});
-		process2.on('close', function(c, s){
+		process2.on('exit', function(c, s){
 			console.log("code: "+c);
 			console.log("status: "+s);
 			console.log("Data computed !");

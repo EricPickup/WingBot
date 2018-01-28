@@ -45,6 +45,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 		console.log("Code: "+code);
 		var process2 = spawn('python2.7', [path.join(__dirname, "../compute.py")]);
 		process2.on('exit', function(c, r){
+			console.log("Data computed !");
 			var data = require('../dataDump');
 			var mentions = require('../data');
 			data.mentions = mentions.top_mentions;

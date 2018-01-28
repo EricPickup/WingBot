@@ -42,14 +42,14 @@ router.get('/watson', function(req, res, next){
 
 router.post('/fetchTwitterData', function(req, res, next){
 	console.log("fetching data...");
-	console.log('python ' + path.join("../fetchTwitterData.py") + " " + req.body.twitter_handle + " " + 100)
-	exec('python ' + path.join("../fetchTwitterData.py") + " " + req.body.twitter_handle + " " + 100)
+	console.log('python ' + path.join("fetchTwitterData.py") + " " + req.body.twitter_handle + " " + 100)
+	exec('python ' + "fetchTwitterData.py" + " " + req.body.twitter_handle + " " + 100)
 		.then(function (result) {
 			setTimeout(() => {
 				res.send('done');
 			}, 180000)
-			console.log('python ' + path.join(__dirname, "../compute.py"));
-			exec('python ' + path.join("../compute.py"))
+			console.log('python compute.py'));
+			exec('python compute.py")
 				.then(function (result) {
 					console.log("Data computed !");
 					var data = require('../dataDump');

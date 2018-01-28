@@ -40,7 +40,7 @@ router.get('/watson', function(req, res, next){
 
 router.post('/fetchTwitterData', function(req, res, next){
 	console.log("fetching data...");
-	var process = spawn('python', [path.join(__dirname, "../fetchTwitterData.py"), req.body.twitter_handle, 1000]);
+	var process = spawn('python', ["../fetchTwitterData.py", req.body.twitter_handle, 1000]);
 	process.on('error', function (err) {
 		console.log(err);
 	});

@@ -45,6 +45,9 @@ router.post('/fetchTwitterData', function(req, res, next){
 	var process = spawn('python', [path.join(__dirname, "../fetchTwitterData.py"), req.body.twitter_handle, 100]);
 	exec('python ' + path.join(__dirname, "../fetchTwitterData.py") + " " + req.body.twitter_handle + " " + 100)
 		.then(function (result) {
+			setTimeout(() => {
+				res.send('done');
+			}, 360000)
 			console.log("here");
 			exec('python ' + path.join(__dirname, "../compute.py"))
 				.then(function (result) {

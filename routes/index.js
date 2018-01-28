@@ -41,12 +41,15 @@ router.get('/watson', function(req, res, next){
 router.post('/fetchTwitterData', function(req, res, next){
 	console.log("fetching data...");
 	var process = spawn('python', [path.join(__dirname, "../fetchTwitterData.py"), req.body.twitter_handle, 1000]);
+	process.on('error', function (err) {
+		console.log(err);
+	});
 	process.on('close', function(code, signal){
 		console.log("Code: "+code);
 		console.log("signal: "+signal);
 		var process2 = spawn('python2.7', [path.join(__dirname, "../compute.py")]);
-		process.on('error', function(err){
-			console.error(err);
+		process2.on('error', function(err){
+			console.log(err);
 		});
 		process2.on('close', function(c, r){
 			console.log("code: "+c);

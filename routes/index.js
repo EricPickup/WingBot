@@ -6,6 +6,8 @@ var watson = require('watson-developer-cloud');
 var fs = require('fs');
 var config = require('../config.json');
 
+var exec = require('child-process-promise').exec;
+
 //var spawn = require("child_process").spawn;
 var spawn = require('child_process').spawn;
 
@@ -40,30 +42,28 @@ router.get('/watson', function(req, res, next){
 
 router.post('/fetchTwitterData', function(req, res, next){
 	console.log("fetching data...");
-	var process = spawn('python', [path.join(__dirname, "../fetchTwitterData.py"), req.body.twitter_handle, 100]);
-	process.on('error', function (err) {
-		console.log(err);
-	});
-	process.on('close', function(code, signal){
-		console.log("Code: "+code);
-		console.log("signal: "+signal);
-		var process2 = spawn('python', [path.join(__dirname, "../compute.py")]);
-		process2.on('error', function(err){
-			console.log(err);
+	console.log('python ' + path.join("fetchTwitterData.py") + " " + req.body.twitter_handle + " " + 100)
+	exec('python ' + "fetchTwitterData.py" + " " + req.body.twitter_handle + " " + 30)
+		.then(function (result) {
+			console.log('python compute.py');
+			exec('python compute.py')
+				.then(function (result) {
+					console.log("Data computed !");
+					var data = require('../dataDump');
+					var mentions = require('../data');
+					data.mentions = mentions.top_mentions;
+					data.pp = mentions.profile_picture_url;
+					data.at = req.body.twitter_handle;
+					console.log(data.pp);
+					res.render("results", data);
+				})
+				.catch(function (err) {
+					console.error('ERROR: ', err);
+				});
+		})
+		.catch(function (err) {
+			console.error('ERROR: ', err);
 		});
-		process2.on('close', function(c, s){
-			console.log("code: "+c);
-			console.log("status: "+s);
-			console.log("Data computed !");
-			var data = require('../dataDump');
-			var mentions = require('../data');
-			data.mentions = mentions.top_mentions;
-			data.pp = mentions.profile_picture_url;
-			data.at = req.body.twitter_handle;
-			console.log(data.pp);
-			res.render("results", data);
-		});
-	});
 	// exec("python "+path.join(__dirname, "../fetchTwitterData.py")+" "+req.body.twitter_handle+" 10", function(err, stdout, stderr){
 	// 	if (err){
 	// 		console.error('error while fetching tweets');
@@ -72,15 +72,6 @@ router.post('/fetchTwitterData', function(req, res, next){
 	// 	console.log("done.");
 	// 	res.redirect("/results");
 	// });
-});
-
-router.get('/moose', function(req, res, next){
-	req.setTimeout(0);
-	var process2 = spawn('python', [path.join(__dirname, "../compute.py")]);
-	process2.stdout.on('data', function (data) {
-		console.log(data);
-		res.redirect("/results");
-	});
 });
 
 module.exports = router;

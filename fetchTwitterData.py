@@ -24,7 +24,9 @@ mentionData = defaultdict()
 
 
 def sliceMentions(text, tweetObj):
+
     while '@' in text:
+    	
         indexOfMention = text.find('@')
         indexOfSpace = text[indexOfMention:].find(' ')
 
@@ -50,6 +52,7 @@ def sliceMentions(text, tweetObj):
 
 
 def storeMentions():
+
     mentionCount = 0
     topMentions = []
     for w in sorted(mentionData, key=mentionData.get, reverse=True):
@@ -92,7 +95,7 @@ tweetCount = 1
 
 for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name = TWITTER_USER).items():
     
-    currentTweet = str(tweet)
+    currentTweet = str(tweet.full_text)
     currentTweet = currentTweet.replace("\u2019","'")
     currentTweet = sliceMentions(currentTweet, tweet)
 
@@ -109,6 +112,11 @@ for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name
             'text': currentTweet,
             'date': str(tweet.created_at)
             })
+
+    print("-------------TWEEET-------------")
+    print(tweet.full_text)
+    print(tweet.created_at)
+    print("---------------------------------")
 
     #Scraping images
     if "media" in tweet.entities:

@@ -66,11 +66,13 @@ def searchEmotions(data, words):
 	sadness = 0 
 	fear = 0 
 	disgust = 0
-	tot = 0 
+	tot = 0
+
+	config = json.load(open('config.json'))["IBM"] 
 
 	natural_language_understanding = NaturalLanguageUnderstandingV1(
-	  username='b2600595-97a5-4a8a-a9c4-0df0daaff8e8',
-	  password='AEJpTBE0MUDX',
+	  username= config["username"],
+	  password= config["password"],
 	  version='2017-02-27')
 
 	for tweet in data["direct_tweets"]:

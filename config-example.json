@@ -1,0 +1,14 @@
+{
+    "IBM": {
+        "api_key2": "",
+        "api_key": "",
+        "username": "",
+        "password": ""
+    },
+    "Twitter": {
+        "consumer_key": "",
+        "consumer_secret": "",
+        "access_token": "",
+        "access_secret": ""
+    }
+}

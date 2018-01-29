@@ -26,7 +26,7 @@ mentionData = defaultdict()
 def sliceMentions(text, tweetObj):
 
     while '@' in text:
-    	
+    
         indexOfMention = text.find('@')
         indexOfSpace = text[indexOfMention:].find(' ')
 
@@ -55,6 +55,7 @@ def storeMentions():
 
     mentionCount = 0
     topMentions = []
+    
     for w in sorted(mentionData, key=mentionData.get, reverse=True):
 
         if TWITTER_USER_ID != w:
@@ -76,9 +77,9 @@ def storeMentions():
                 })
 
 
-
-auth = tweepy.OAuthHandler("SixyP1Cu3nsoBNuVzHAGXOnDX", "zym6YSg6fd69ZrzoHTVsAHXTwa3P1bW2svTXxFo3h1xcNSREsy")
-auth.set_access_token("816332989-YJODPjJBFRiXjEtLoD8LvbR4JgPPaGgrdrUNn5uI", "attjJfwCFONQT4g51usW9y8VjPPgy4td8JmQB59JeCjOT")
+config = json.load(open('config.json'))["Twitter"]
+auth = tweepy.OAuthHandler(config["consumer_key"], config["consumer_secret"])
+auth.set_access_token(config["access_token"], config["access_secret"])
 api = tweepy.API(auth)
 
 #Retrieve high-res version of user's profile picture

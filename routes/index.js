@@ -74,13 +74,4 @@ router.post('/fetchTwitterData', function(req, res, next){
 	// });
 });
 
-router.get('/moose', function(req, res, next){
-	req.setTimeout(0);
-	var process2 = spawn('python', [path.join(__dirname, "../compute.py")]);
-	process2.stdout.on('data', function (data) {
-		console.log(data);
-		res.redirect("/results");
-	});
-});
-
 module.exports = router;

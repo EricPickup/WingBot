@@ -22,22 +22,21 @@ tweetData['profile_picture_url'] = ""
 
 mentionData = defaultdict()
 
+def sliceMentions(tweetText, tweetObj):
 
-def sliceMentions(text, tweetObj):
-
-    while '@' in text:
+    while '@' in tweetText:
     
-        indexOfMention = text.find('@')
-        if text[indexOfMention-1] == '.':
+        indexOfMention = tweetText.find('@')
+        if tweetText[indexOfMention-1] == '.':
         	indexOfMention -= 1
-        indexOfSpace = text[indexOfMention:].find(' ')
+        indexOfSpace = tweetText[indexOfMention:].find(' ')
 
         #Edge case: If the mention is the last word in the tweet, we will not find a space
         if indexOfSpace == -1:  
-            indexOfSpace = len(text) - indexOfMention
+            indexOfSpace = len(tweetText) - indexOfMention
 
-        mentionName = text[indexOfMention : indexOfSpace + indexOfMention + 1]
-        text = text.replace(mentionName,"")
+        mentionName = tweetText[indexOfMention : indexOfSpace + indexOfMention + 1]
+        tweetText = tweetText.replace(mentionName,"")
 
         #Remove any spaces or colons in the mention name
         while ' ' in mentionName or ':' in mentionName:
@@ -50,11 +49,9 @@ def sliceMentions(text, tweetObj):
         else:
             mentionData[currentMention['id']] = 1
 
-    return text
+    return tweetText
 
-
-def storeMentions():
-
+def storeTopMentions():
     mentionCount = 0
     topMentions = []
     
@@ -69,12 +66,47 @@ def storeMentions():
 
     for user_id, mentioned_frq in topMentions:
 
-        mentionuser = api.get_user(user_id=user_id)
+        currentUser = api.get_user(user_id=user_id)
         tweetData['top_mentions'].append({
-            'user':     "@" + mentionuser.screen_name,
+            'user':     "@" + currentUser.screen_name,
             'num_mentions': mentioned_frq,
-            'profile_picture_url':  mentionuser.profile_image_url_https
+            'profile_picture_url':  currentUser.profile_image_url_https
             })
+
+def printTweet(tweet):
+	print("-------------TWEEET-------------")
+	print("Text:\t",tweet.full_text)
+	print("\nDate:\t",tweet.created_at)
+	print("---------------------------------")
+
+
+def scrapeImages(tweet):
+    if "media" in tweet.entities:
+        for imageIndex in range(0,len(tweet.extended_entities["media"])):
+            imageURL = tweet.extended_entities["media"][imageIndex]['media_url_https']
+            #Ignoring video thumbnails and retweeded images/videos
+            if "RT " not in tweet.full_text and "video" not in imageURL:
+                tweetData['images'].append({
+                    'URL': imageURL,
+                    'date': str(tweet.created_at)
+                    })
+
+def storeTweet(tweetText):
+    #Retweeted tweets (all begin with "RT ..")
+    if "RT " in tweetText:
+        tweetText = tweetText.replace("RT ", "")
+        tweetData['retweets'].append({
+            'text': tweetText,
+            'date': str(tweet.created_at)
+            })
+
+    #Other tweets (mentions or regular tweets)
+    else:
+        tweetData['direct_tweets'].append({
+            'text': currentTweet,
+            'date': str(tweet.created_at)
+            })
+
 
 
 config = json.load(open('config.json'))["Twitter"]
@@ -89,52 +121,27 @@ profilePictureURL = profilePictureURL.replace("_normal","")
 tweetData['profile_picture_url'] = profilePictureURL
 TWITTER_USER_ID = userProfile.id
 
+
 tweetCount = 1
 
 for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name = TWITTER_USER).items():
     
+    
     currentTweet = str(tweet.full_text)
     currentTweet = currentTweet.replace("\u2019","'")
-
-    if "RT" in currentTweet:
-    	print("BEFORE SLICE: ",currentTweet)
     currentTweet = sliceMentions(currentTweet, tweet)
 
-    #Retweeted tweets (all begin with "RT ..")
-    if "RT " in currentTweet:
-        currentTweet = currentTweet.replace("RT ", "")
-        tweetData['retweets'].append({
-            'text': currentTweet,
-            'date': str(tweet.created_at)
-            })
+    printTweet(tweet)
+    scrapeImages(tweet)
+    storeTweet(currentTweet)
 
-    #Other tweets (mentions or regular tweets)
-    else:
-        tweetData['direct_tweets'].append({
-            'text': currentTweet,
-            'date': str(tweet.created_at)
-            })
-
-    print("-------------TWEEET-------------")
-    print(tweet.full_text)
-    print(tweet.created_at)
-    print("---------------------------------")
-
-    #Scraping images
-    if "media" in tweet.entities:
-        for imageIndex in range(0,len(tweet.extended_entities["media"])):
-            imageURL = tweet.extended_entities["media"][imageIndex]['media_url_https']
-            #Ignoring video thumbnails and retweeded images/videos
-            if "RT " not in currentTweet and "video" not in imageURL:
-                tweetData['images'].append({
-                    'URL': imageURL,
-                    'date': str(tweet.created_at)
-                    })
     tweetCount = tweetCount + 1
+
     if (tweetCount > MAX_TWEETS):
         break
 
-storeMentions()
+
+storeTopMentions()
 
 with open('data.json', 'w') as f:
     json.dump(tweetData, f, indent=2)

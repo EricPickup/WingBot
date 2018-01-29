@@ -28,6 +28,8 @@ def sliceMentions(text, tweetObj):
     while '@' in text:
     
         indexOfMention = text.find('@')
+        if text[indexOfMention-1] == '.':
+        	indexOfMention -= 1
         indexOfSpace = text[indexOfMention:].find(' ')
 
         #Edge case: If the mention is the last word in the tweet, we will not find a space
@@ -66,15 +68,13 @@ def storeMentions():
             break
 
     for user_id, mentioned_frq in topMentions:
-        mentionuser = api.lookup_users(user_ids=[user_id])
 
-        for user in mentionuser:
-
-            tweetData['top_mentions'].append({
-                'user':     "@" + user.screen_name,
-                'num_mentions': mentioned_frq,
-                'profile_picture_url':  user.profile_image_url_https
-                })
+        mentionuser = api.get_user(user_id=user_id)
+        tweetData['top_mentions'].append({
+            'user':     "@" + mentionuser.screen_name,
+            'num_mentions': mentioned_frq,
+            'profile_picture_url':  mentionuser.profile_image_url_https
+            })
 
 
 config = json.load(open('config.json'))["Twitter"]
@@ -83,14 +83,11 @@ auth.set_access_token(config["access_token"], config["access_secret"])
 api = tweepy.API(auth)
 
 #Retrieve high-res version of user's profile picture
-userProfile = api.user_timeline(screen_name = TWITTER_USER)
-
-for tweet in userProfile:
-    profilePictureURL = tweet.user.profile_image_url_https
-    profilePictureURL = profilePictureURL.replace("_normal","")
-    tweetData['profile_picture_url'] = profilePictureURL
-    TWITTER_USER_ID = tweet.user.id
-    break
+userProfile = api.get_user(screen_name = TWITTER_USER)
+profilePictureURL = userProfile.profile_image_url_https
+profilePictureURL = profilePictureURL.replace("_normal","")
+tweetData['profile_picture_url'] = profilePictureURL
+TWITTER_USER_ID = userProfile.id
 
 tweetCount = 1
 
@@ -98,10 +95,14 @@ for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name
     
     currentTweet = str(tweet.full_text)
     currentTweet = currentTweet.replace("\u2019","'")
+
+    if "RT" in currentTweet:
+    	print("BEFORE SLICE: ",currentTweet)
     currentTweet = sliceMentions(currentTweet, tweet)
 
     #Retweeted tweets (all begin with "RT ..")
     if "RT " in currentTweet:
+        currentTweet = currentTweet.replace("RT ", "")
         tweetData['retweets'].append({
             'text': currentTweet,
             'date': str(tweet.created_at)

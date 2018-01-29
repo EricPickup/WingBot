@@ -1,16 +1,13 @@
-#Eric Pickup
-
 import tweepy
 import sys
 import json
 import unicodedata
 from collections import defaultdict
 
-#COMMAND LINE ARGUMENT 1 = TWITTER USERNAME TO SEARCH
-TWITTER_USER = sys.argv[1]
-#COMMAND LINE ARGUMENT 2 = MAXIMUM NUMBER OF TWEETS TO SCRAPE
-MAX_TWEETS = int(sys.argv[2])
-MAX_MENTIONS = 10
+#IMPORTANT VARIABLES
+TWITTER_USER = sys.argv[1]			#@Username of the twitter user to be analyzed
+MAX_TWEETS = int(sys.argv[2])		#Maximum number of tweets to be scraped from user's profile (inc. retweets)
+MAX_MENTIONS = 10					#Maximum number of top mentions to store (i.e. store top 10 mentions)
 
 #Building the JSON format
 tweetData = {}
@@ -99,7 +96,6 @@ def storeTweet(tweetText):
             'text': tweetText,
             'date': str(tweet.created_at)
             })
-
     #Other tweets (mentions or regular tweets)
     else:
         tweetData['direct_tweets'].append({
@@ -125,8 +121,7 @@ TWITTER_USER_ID = userProfile.id
 tweetCount = 1
 
 for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name = TWITTER_USER).items():
-    
-    
+   
     currentTweet = str(tweet.full_text)
     currentTweet = currentTweet.replace("\u2019","'")
     currentTweet = sliceMentions(currentTweet, tweet)
@@ -139,7 +134,6 @@ for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name
 
     if (tweetCount > MAX_TWEETS):
         break
-
 
 storeTopMentions()
 

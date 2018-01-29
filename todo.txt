@@ -1,0 +1,5 @@
+Eric:
+- Add most frequent favorites/retweets
+- Fix text in retweets (remove "RT")
+- Add retweet user
+- Fix cut-off in retweets text

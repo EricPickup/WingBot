@@ -62,9 +62,17 @@ router.post('/fetchTwitterData', function(req, res, next){
 				if (err) console.log(err);
 				console.log("Data Received.");
 			});
+
+			var google_cloud = spawn('python', [
+				"google_cloud.py",
+				"\""+data.toString()+"\""
+			]);
+
+
 			data = JSON.parse(text);
 			data.at = req.body.twitter_handle;
 			data.pp = data.profile_picture_url;
+
 			console.log("rendering results page");
 			res.render("results", data);
 		});

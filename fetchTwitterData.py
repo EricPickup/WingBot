@@ -8,10 +8,6 @@ from urllib.request import Request, urlopen
 
 url = 'https://wingbot.org/twitterdata' # Set destination URL here
 
-request = Request(url, urlencode(post_fields).encode())
-json = urlopen(request).read().decode()
-print(json)
-
 #IMPORTANT VARIABLES
 TWITTER_USER = sys.argv[1]			#@Username of the twitter user to be analyzed
 MAX_TWEETS = int(sys.argv[2])		#Maximum number of tweets to be scraped from user's profile (inc. retweets)

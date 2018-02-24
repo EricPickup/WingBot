@@ -3,6 +3,14 @@ import sys
 import json
 import unicodedata
 from collections import defaultdict
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
+url = 'https://wingbot.org/twitterdata' # Set destination URL here
+
+request = Request(url, urlencode(post_fields).encode())
+json = urlopen(request).read().decode()
+print(json)
 
 #IMPORTANT VARIABLES
 TWITTER_USER = sys.argv[1]			#@Username of the twitter user to be analyzed
@@ -172,5 +180,8 @@ with open('data.json', 'w') as f:
     json.dump(tweetData, f, indent=2)
 
 f.close()
+
+request = Request(url, urlencode(tweetData).encode())
+json = urlopen(request).read().decode()
 
 print("Done.")

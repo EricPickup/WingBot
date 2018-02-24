@@ -8,6 +8,12 @@ from watson_developer_cloud \
 from watson_developer_cloud.natural_language_understanding_v1 \
   import Features, EntitiesOptions, KeywordsOptions, EmotionOptions
 
+import argparse
+from google.cloud import language
+from google.cloud.language import enums
+from google.cloud.language import types
+
+
 '''
 Function: stripPunctuation
 Desc: Strips any punctuation from a word
@@ -41,18 +47,25 @@ Output: List of most frequently mentioned nounds
 '''
 def findKeywords(data):
 
-	keywordsDict = {}
+	'''keywordsDict = {}
 	nouns = [str] * 20
-	freq = [0] * 20
-
+	freq = [0] * 20'''
+	client = language.LanguageServiceClient()
 	for tweet in data["direct_tweets"]:
-		tmp = stripPuncuation(tweet["text"]);
-		for word in tmp.split():
+		text = tweet["text"]
+		document = types.Document(
+			content=text,
+			type=enums.Document.Type.PLAIN_TEXT)
+		annotations = client.analyze_entities(document=document)
+		print(annotations)
+		#tmp = stripPuncuation(tweet["text"]);
+		'''for word in tmp.split():
 			if(isNoun(word)):
 				if word in keywordsDict:
 					keywordsDict[word] += 1
 				else:
 					keywordsDict[word] = 1
+
 
 	for key, value in keywordsDict.items():
 		f = min(freq)
@@ -64,7 +77,7 @@ def findKeywords(data):
 	for i in range(len(nouns)):
 			nouns[i] = nouns[i].encode('ascii')
 
-	return nouns
+	return nouns'''
 
 
 '''
@@ -221,10 +234,10 @@ for f in file:
 	nouns[f] = 0
 
 data = json.loads(d.read())
-keys = findKeywords(data)
-print(keys)
-emotes = searchEmotions(data, keys)
-keywords = searchByKeyword(data, keys)
+findKeywords(data)
+#print(keys)
+#emotes = searchEmotions(data, keys)
+#keywords = searchByKeyword(data, keys)
 
 person = {}
 person['single'] = False

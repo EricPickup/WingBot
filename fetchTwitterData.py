@@ -83,22 +83,10 @@ def storeTopMentions():
 
         currentUser = api.get_user(user_id=user_id)
         tweetData['top_mentions'].append({
-            'user':     "@" + currentUser.screen_name,
-            'num_mentions': mentioned_frq,
-            'profile_picture_url':  currentUser.profile_image_url_https
+            'user':     str("@" + currentUser.screen_name),
+            'num_mentions': str(mentioned_frq),
+            'profile_picture_url':  str(currentUser.profile_image_url_https)
             })
-
-
-'''Function: printTweet
-Desc: Prints the text/date of a tweet
-Input: Instance of the tweet
-Output: Prints the text/date of tweet
-'''
-def printTweet(tweet):
-	print("-------------TWEEET-------------")
-	print("Text:",tweet.full_text)
-	print("Date:",str(tweet.created_at))
-	print("---------------------------------")
 
 
 '''Function: scrapeImages
@@ -113,7 +101,7 @@ def scrapeImages(tweet):
             #Ignoring video thumbnails and retweeded images/videos
             if "RT " not in tweet.full_text and "video" not in imageURL:
                 tweetData['images'].append({
-                    'URL': imageURL,
+                    'URL': str(imageURL),
                     'date': str(tweet.created_at)
                     })
 
@@ -128,13 +116,13 @@ def storeTweet(tweet):
     if "RT " in tweetText:
         tweetText = tweetText.replace("RT ", "")
         tweetData['retweets'].append({
-            'text': tweetText,
+            'text': str(tweetText),
             'date': str(tweet.created_at)
             })
     #Other tweets (mentions or regular tweets)
     else:
         tweetData['direct_tweets'].append({
-            'text': currentTweet,
+            'text': str(currentTweet),
             'date': str(tweet.created_at)
             })
 
@@ -150,7 +138,7 @@ api = tweepy.API(auth)
 userProfile = api.get_user(screen_name = TWITTER_USER)
 profilePictureURL = userProfile.profile_image_url_https
 profilePictureURL = profilePictureURL.replace("_normal","")
-tweetData['profile_picture_url'] = profilePictureURL
+tweetData['profile_picture_url'] = str(profilePictureURL)
 TWITTER_USER_ID = userProfile.id
 
 tweetCount = 1
@@ -161,7 +149,6 @@ for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name
     currentTweet = currentTweet.replace("\u2019","'")
     currentTweet = sliceMentions(currentTweet, tweet)
 
-    printTweet(tweet)
     scrapeImages(tweet)
     storeTweet(tweet)
 
@@ -172,8 +159,6 @@ for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name
 
 storeTopMentions()
 
-
-request = Request(url, urlencode(tweetData).encode())
-json = urlopen(request).read().decode()
-
-print("Done.")
+print(str(tweetData));
+# request = Request(url, urlencode(tweetData).encode())
+# json = urlopen(request).read().decode()

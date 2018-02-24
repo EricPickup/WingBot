@@ -80,7 +80,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 
 			console.log("> computing tweet frequency");
 			var first_date = {
-				year: parseInt(data.direct_tweets[0].date.subsstring(0, 4)),
+				year: parseInt(data.direct_tweets[0].date.substring(0, 4)),
 				month: parseInt(data.direct_tweets[0].date.substring(5, 7)),
 				day: parseInt(data.direct_tweets[0].date.substring(8))
 			}
@@ -92,13 +92,15 @@ router.post('/fetchTwitterData', function(req, res, next){
 			}
 
 			var frequencyScore = 0;
-			frequencyScore += 365*abs(first_date.year - last_date.year);
-			frequencyScore += 30*abs(first_date.month - last_date.month);
-			frequencyScore += 1*abs(first_date.day - last_date.day)
+			frequencyScore += 365*Math.abs(first_date.year - last_date.year);
+			frequencyScore += 30*Math.abs(first_date.month - last_date.month);
+			frequencyScore += 1*Math.abs(first_date.day - last_date.day);
 
+			frequencyScore = (frequencyScore != 0) ? 100/frequencyScore : 100;
 
+			console.log(frequencyScore);
 
-			var ready = false;	
+			var ready = false;
 			var pathToComputeLikes;
 			var pathToGoogleCloud;
 		

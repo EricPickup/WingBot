@@ -139,7 +139,7 @@ api = tweepy.API(auth)
 userProfile = api.get_user(screen_name = TWITTER_USER)
 tweetData['num_followers'] = userProfile.followers_count
 tweetData['num_following'] = userProfile.friends_count
-print(numFollowers, numFollowing)
+#print(numFollowers, numFollowing)
 profilePictureURL = userProfile.profile_image_url_https
 profilePictureURL = profilePictureURL.replace("_normal","")
 tweetData['profile_picture_url'] = str(profilePictureURL)

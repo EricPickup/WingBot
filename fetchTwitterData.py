@@ -19,6 +19,14 @@ tweetData['profile_picture_url'] = ""
 
 mentionData = defaultdict()
 
+'''
+Function: sliceMentions
+Desc: Removes and each mention (@someone) from tweet text so that it will not be analyzed for emotions.
+	  Stores each mention in order to keep track of frequency so that we may calculate top mentions.
+Input:	tweetText - string containing the entirety of the text of the tweet
+		tweetObj - instance of the tweet
+Output:	Returns text after removing mentions
+'''
 def sliceMentions(tweetText, tweetObj):
 
     while '@' in tweetText:
@@ -48,6 +56,12 @@ def sliceMentions(tweetText, tweetObj):
 
     return tweetText
 
+
+'''
+Function: storeTopMentions
+Desc: Stores MAX_MENTIONS amount of the most frequently mentioned users from the main user, and the frequeny
+Output: Stores the mentions/frequency in the dataDump.json file under "top_mentions"
+'''
 def storeTopMentions():
     mentionCount = 0
     topMentions = []
@@ -70,13 +84,24 @@ def storeTopMentions():
             'profile_picture_url':  currentUser.profile_image_url_https
             })
 
+
+'''Function: printTweet
+Desc: Prints the text/date of a tweet
+Input: Instance of the tweet
+Output: Prints the text/date of tweet
+'''
 def printTweet(tweet):
 	print("-------------TWEEET-------------")
-	print("Text:\t",tweet.full_text)
-	print("\nDate:\t",tweet.created_at)
+	print("Text:",tweet.full_text)
+	print("Date:",str(tweet.created_at))
 	print("---------------------------------")
 
 
+'''Function: scrapeImages
+Desc: Finds all images contained in a tweet and stores the direct URL in the json file
+Input: Instance of the tweet
+Output: Stores direct URL to images under 'images' in dataDump.json file
+'''
 def scrapeImages(tweet):
     if "media" in tweet.entities:
         for imageIndex in range(0,len(tweet.extended_entities["media"])):
@@ -88,8 +113,14 @@ def scrapeImages(tweet):
                     'date': str(tweet.created_at)
                     })
 
-def storeTweet(tweetText):
+
+'''Function: storeTweet
+Desc: Stores date and text of the tweet in the output json file
+Input: Instance of the current tweet
+Output: Stores the text/date of tweet in json file'''
+def storeTweet(tweet):
     #Retweeted tweets (all begin with "RT ..")
+    tweetText = unicodedata.normalize('NFKD', tweet.full_text).encode('ascii','ignore')
     if "RT " in tweetText:
         tweetText = tweetText.replace("RT ", "")
         tweetData['retweets'].append({
@@ -104,11 +135,12 @@ def storeTweet(tweetText):
             })
 
 
-
+################ API SETUP #####################
 config = json.load(open('config.json'))["Twitter"]
 auth = tweepy.OAuthHandler(config["consumer_key"], config["consumer_secret"])
 auth.set_access_token(config["access_token"], config["access_secret"])
 api = tweepy.API(auth)
+#################################################
 
 #Retrieve high-res version of user's profile picture
 userProfile = api.get_user(screen_name = TWITTER_USER)
@@ -117,18 +149,17 @@ profilePictureURL = profilePictureURL.replace("_normal","")
 tweetData['profile_picture_url'] = profilePictureURL
 TWITTER_USER_ID = userProfile.id
 
-
 tweetCount = 1
 
 for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name = TWITTER_USER).items():
    
-    currentTweet = str(tweet.full_text)
+    currentTweet = tweet.full_text
     currentTweet = currentTweet.replace("\u2019","'")
     currentTweet = sliceMentions(currentTweet, tweet)
 
     printTweet(tweet)
     scrapeImages(tweet)
-    storeTweet(currentTweet)
+    storeTweet(tweet)
 
     tweetCount = tweetCount + 1
 
@@ -139,5 +170,7 @@ storeTopMentions()
 
 with open('data.json', 'w') as f:
     json.dump(tweetData, f, indent=2)
+
+f.close()
 
 print("Done.")

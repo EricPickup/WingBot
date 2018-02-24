@@ -8,35 +8,49 @@ from watson_developer_cloud \
 from watson_developer_cloud.natural_language_understanding_v1 \
   import Features, EntitiesOptions, KeywordsOptions, EmotionOptions
 
+'''
+Function: stripPunctuation
+Desc: Strips any punctuation from a word
+Input: Word to be stripped
+Output: Stripped word
+'''
 def stripPuncuation(word):
 
 	regex = re.compile('[^a-z A-Z]')
 	word = regex.sub('', word)
 	return word
 
+
+'''
+Function: isNoun
+Desc: Searches for current word in the noun wordbank
+Input: Word to be searched
+Output: True if the word is in the noun wordbank
+'''
 def isNoun(word):
+	for noun in nouns:
+		regexString = r"^" + re.escape(word) + r"\s"
+		if re.search(regexString, noun, re.IGNORECASE):
+			return True
 
-	word+='\n'
-	if word in nouns:
-		return True
-	else:
-		return False
-
-
+'''
+Function: findKeywords
+Desc: Finds each noun in a tweet and keeps track of the frequency of the nouns
+Input: Tweet
+Output: List of most frequently mentioned nounds
+'''
 def findKeywords(data):
 
 	keywordsDict = {}
-	nouns = ["","","","","","","","","","","","","","","","","","","",""]
-	freq = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+	nouns = [str] * 20
+	freq = [0] * 20
 
 	for tweet in data["direct_tweets"]:
 		tmp = stripPuncuation(tweet["text"]);
 		for word in tmp.split():
-
 			if(isNoun(word)):
-
 				if word in keywordsDict:
-					keywordsDict[word]+=1
+					keywordsDict[word] += 1
 				else:
 					keywordsDict[word] = 1
 
@@ -48,10 +62,18 @@ def findKeywords(data):
 			freq[i] = value
 
 	for i in range(len(nouns)):
-		nouns[i] = nouns[i].encode('ascii')
+			nouns[i] = nouns[i].encode('ascii')
 
 	return nouns
 
+
+'''
+Function: searchEmotions
+Desc: Uses the Watson API to determine the user's emotions from each one of their tweets
+Input: data - dictionary containing all tweets
+		words - list of top keywords
+Output: Returns the rating of user's emotions
+'''
 def searchEmotions(data, words):
 
 	emotionData = {}
@@ -77,7 +99,6 @@ def searchEmotions(data, words):
 
 	for tweet in data["direct_tweets"]:
 		tmp = tweet["text"]
-
 		try:
 			response = natural_language_understanding.analyze(
 			  html=tmp,
@@ -86,7 +107,6 @@ def searchEmotions(data, words):
 			      targets=words)))
 
 			#Overall Emotions from tweets
-
 			emote = response['emotion']['document']['emotion']
 			anger += emote['anger']
 			joy += emote['joy']
@@ -94,24 +114,29 @@ def searchEmotions(data, words):
 			fear += emote['fear']
 			disgust += emote['disgust']
 			tot += 1
-
 			#-----------------------------
 		except:
 
 			continue	
 	#Overall Emotions from tweets
-
-	emotionData['anger'] = anger/tot
-	emotionData['joy'] = joy/tot
-	emotionData['sadness'] = sadness/tot
-	emotionData['fear'] = fear/tot
-	emotionData['disgust'] = disgust/tot
+	if tot > 0:
+		emotionData['anger'] = anger/tot
+		emotionData['joy'] = joy/tot
+		emotionData['sadness'] = sadness/tot
+		emotionData['fear'] = fear/tot
+		emotionData['disgust'] = disgust/tot
 
 	#-----------------------------
 
 	return emotionData
 
 
+'''
+Function: searchByKeyword
+Desc: Checks the most frequently used nouns and determines the emotions based off of those specific words
+Input: data - dictionary containing all tweets/tweet data
+Output: Returns list of each word with their associating emotions
+'''
 def searchByKeyword(data, words):
 
 	keyWordData = {}
@@ -133,10 +158,9 @@ def searchByKeyword(data, words):
 	  password='AEJpTBE0MUDX',
 	  version='2017-02-27')
 
+	#Calculating emotions for each keyword
 	for tweet in data["direct_tweets"]:
 		tmp = tweet["text"]
-		# raw_input()
-
 		try:
 			response = natural_language_understanding.analyze(
 			  html=tmp,
@@ -144,33 +168,40 @@ def searchByKeyword(data, words):
 			    emotion=EmotionOptions(
 			      targets=words)))
 
-			# print(json.dumps(response, indent=2))
 			emote = response['emotion']['targets']
 
+			#Adding emotion rating for each type of emotion for each keyword
 			for e in emote:
 				tmp = e['text']
-
-				keyWordData['words'][words.index(tmp)]['anger'] += e['emotion']['anger']
-				keyWordData['words'][words.index(tmp)]['joy'] += e['emotion']['joy']
-				keyWordData['words'][words.index(tmp)]['sadness'] += e['emotion']['sadness']
-				keyWordData['words'][words.index(tmp)]['fear'] += e['emotion']['fear']
-				keyWordData['words'][words.index(tmp)]['disgust'] += e['emotion']['disgust']
-				keyWordData['words'][words.index(tmp)]['tot'] += 1
+				currentWordInList = keyWordData['words'][words.index(tmp)]
+				currentWordInList['anger'] += e['emotion']['anger']
+				currentWordInList['joy'] += e['emotion']['joy']
+				currentWordInList['sadness'] += e['emotion']['sadness']
+				currentWordInList['fear'] += e['emotion']['fear']
+				currentWordInList['disgust'] += e['emotion']['disgust']
+				currentWordInList['tot'] += 1
 
 		except:
-
 			continue
 
 	for i in range(20):
+		keyWordEmotions = keyWordData['words'][i]
 		if(keyWordData['words'][i]['tot'] != 0):
-			keyWordData['words'][i]['anger'] /= keyWordData['words'][i]['tot']
-			keyWordData['words'][i]['joy'] /= keyWordData['words'][i]['tot']
-			keyWordData['words'][i]['sadness'] /= keyWordData['words'][i]['tot']
-			keyWordData['words'][i]['fear'] /= keyWordData['words'][i]['tot']
-			keyWordData['words'][i]['disgust'] /= keyWordData['words'][i]['tot']
+			keyWordEmotions['anger'] /= keyWordEmotions['tot']
+			keyWordEmotions['joy'] /= keyWordEmotions['tot']
+			keyWordEmotions['sadness'] /= keyWordEmotions['tot']
+			keyWordEmotions['fear'] /= keyWordEmotions['tot']
+			keyWordEmotions['disgust'] /= keyWordEmotions['tot']
 	
 	return keyWordData
 
+
+'''
+Function: getLikes
+Desc: Uses the emotion data of the top keywords to determine which ones were joyful/unpleasant to store the likes and dislikes of the user
+Input: keywords - list of top 20 nouns with their associating emotions
+Output: Fills the list of likes/dislikes
+'''
 def getLikes(keywords, likes, dislikes):
 
 	for i in range(20):
@@ -193,7 +224,6 @@ data = json.loads(d.read())
 keys = findKeywords(data)
 print(keys)
 emotes = searchEmotions(data, keys)
-
 keywords = searchByKeyword(data, keys)
 
 person = {}
@@ -214,31 +244,3 @@ d.close()
 
 with open("dataDump.json","w") as f:
 	json.dump(person, f, indent=2)
-# print(findKeywords(data))
-
-# for tweet in data["direct_tweets"]:
-# print(json.dumps(tweet["text"], indent=2))
-
-# freqEmote = max(emotes['anger'],emotes['joy'],emotes['sadness'],emotes['fear'],emotes['disgust'])
-# print(emotes.keys()[list(emotes.values()).index(freqEmote)],freqEmote)
-
-# inp = ["hello hello hi hi hi whats up whats up", "kid i am something else redbull redbull redbull i like big butts", "i can not lie wow i love it happy face"]
-
-
-# natural_language_understanding = NaturalLanguageUnderstandingV1(
-#   username='b2600595-97a5-4a8a-a9c4-0df0daaff8e8',
-#   password='AEJpTBE0MUDX',
-#   version='2017-02-27')
-
-# response = natural_language_understanding.analyze(
-#   text="What's good young buck. The greek freak is so good at basketball. I want to watch a Bucks game",
-#   features=Features(
-#     entities=EntitiesOptions(
-#       emotion=True,
-#       sentiment=True,
-#       limit=2),
-#     keywords=KeywordsOptions(
-#       emotion=True,
-#       sentiment=True,)))
-
-# print(json.dumps(response, indent=2))

@@ -61,7 +61,10 @@ overallLikes = dict()
 overallLikes['likes'] = dict()
 overallLikes['dislikes'] = dict()
 
-data = json.loads(sys.argv[1])
+d = open(sys.argv[1], "r")
+data = json.loads(d.read())
+findKeywords(data)
+
 overallLikes = findKeywords(data, overallLikes)
 print(overallLikes)
 

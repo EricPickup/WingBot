@@ -16,79 +16,13 @@
 					<img class="card-img-top mx-auto" src=<%=pp%> alt="User Picture" style="border-radius: 50%; height: 30vh; width: 30vh; border: 5px solid black; display: block">
 					<h1 style="text-align: center">@<%=at%></h1>
 				</div>
-				<div class="col-9"> 
-					<div class="card" style="height: 100%">
-						<div class="card-header">
-							<h3>Emotions Chart</h3>
-						</div>
-						<div class="card-body">
-							<h4>Joy</h4>
-							<div class="progress">
-								<div class="progress-bar" role="progressbar" style="width: <%=emotions.joy*400%>%;" aria-valuemin="0" aria-valuemax="100"><%=Math.round(emotions.joy*400)%>%</div>
-							</div><br>
-							<h4>Sadness</h4>
-							<div class="progress">
-								<div class="progress-bar" role="progressbar" style="width: <%=emotions.sadness*400%>%;" aria-valuemin="0" aria-valuemax="100"><%=Math.round(emotions.sadness*400)%>%</div>
-							</div><br>
-							<h4>Fear</h4>
-							<div class="progress">
-								<div class="progress-bar" role="progressbar" style="width: <%=emotions.fear*400%>%;" aria-valuemin="0" aria-valuemax="100"><%=Math.round(emotions.fear*400)%>%</div>
-							</div><br>
-							<h4>Discust</h4>
-							<div class="progress">
-								<div class="progress-bar" role="progressbar" style="width: <%=emotions.disgust*400%>%;" aria-valuemin="0" aria-valuemax="100"><%=Math.round(emotions.disgust*400)%>%</div>
-							</div>
-						</div>
-					</div>
+				
 				</div>
 			</div>
 
 			<br>
 
-			<div class="row">
-				<div class="col-3" style="display: block">
-					<div class="card" style="width: 18rem;">
-						<div class="card-header">
-							<b>Likes</b>
-						</div>
-						<!-- UP TO 7 -->
-						<% var count = 1 %>
-						<% likes.forEach(function(like){%>
-							<% if (count++ <= 7){ %>
-								<li class="list-group-item"><%= like %></li>
-							<%}%>
-						<% }); %>
-						<% count = 0 %>
-					</div>
-				</div>
-				<div class="col-3">
-					<div class="card" style="width: 18rem;">
-						<div class="card-header">
-							<b>Dislikes</b>
-						</div>
-						<!-- UP TO 7 -->
-						<ul class="list-group list-group-flush">
-							<% var count = 1 %>
-							<% dislikes.forEach(function(dislike){%>
-								<% if (count++ <= 7){ %>
-									<li class="list-group-item"><%= dislike %></li>
-								<%}%>
-							<% }); %>
-						</ul>
-					</div>
-				</div>
-				<div class="col-6">
-					<h4>Most Mentions</h4>
-					<div class="list-group">
-						<% var count = 1 %>						
-						<%mentions.forEach(function(mention){%>
-							<% if (count++ <= 7){ %>							
-							<a href="#" class="list-group-item list-group-item-action"><image></image><%= mention.user %></a>
-							<%}%>							
-						<%});%>
-					</div>
-				</div>
-			</div>
+			
 		
 		</div>
 	

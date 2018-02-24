@@ -3,6 +3,7 @@ import sys
 from google.cloud import language
 from google.cloud.language import enums
 from google.cloud.language import types
+import os
 
 MAX_TOP_LIKES = 5
 
@@ -28,7 +29,7 @@ def findKeywords(data, overallLikes):
 		for entity in result.entities:
 			for mention in entity.mentions:
 				if mention.sentiment.score:
-					entityName = entity.name.encode('utf-8').lower()
+					entityName = entity.name.lower()
 					if float(mention.sentiment.score) > 0:
 						if entityName in overallLikes['likes']:
 							overallLikes['likes'][entityName] += 1
@@ -63,12 +64,10 @@ overallLikes['dislikes'] = dict()
 
 d = open(sys.argv[1], "r")
 data = json.loads(d.read())
-findKeywords(data)
-
 overallLikes = findKeywords(data, overallLikes)
 print(overallLikes)
 
 d.close()
 
-with open("dataDump.json","w") as f:
-	json.dump(overallLikes, f, indent=2)
+with open(str(os.getpid())+'.json', 'w') as f:
+    json.dump(overallLikes, f, indent=2)

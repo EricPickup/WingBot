@@ -1,73 +1,31 @@
-<!DOCTYPE HTML>
-
 <html>
+
 	<head>
-		<title>WINGBOT</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
-		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+		 crossorigin="anonymous">
 	</head>
-	<body class="landing" scroll="no" style="overflow: hidden">
 
-		<!-- Page Wrapper -->
-		<div id="page-wrapper">
-				<!-- Header -->
-				<header id="header" class="alt">
-					<h1><a href="/">WINGBOT</a></h1>
-				</header>
-				<!-- Banner -->
-				<section id="banner" style="background-image: url('images/bgr.jpg')">
-					<div class="inner">
-						<h2>WINGBOT</h2>
-						<h3>THE PERFECT ACCOMPLICE FOR YOUR ROMANCE NEEDS.</h3>
-						<p>Please fill at least one field.<br />
-							<!-- <ul class="actions"> -->
-							<form action="/fetchTwitterData" method="POST" id="moose_form">
-								<div class="form-group">
-									<input type="text" class="form-control" style="text-align: center" id="twitterSearch" placeholder="Enter Twitter @handler" name="twitter_handle">
-									<div class="inputSpacer"></div>
-									<input type="text" class="form-control" style="text-align: center" id="facebSearch" placeholder="Facebook @handler coming soon" name="facebook_handle">
-									<div class="inputSpacer"></div>
-									<input type="text" class="form-control" style="text-align: center" id="instaSearch" placeholder="Instagram @handler coming soon" name="insta_handle">
-								</div>
-							</form>
-							<!-- <li><a href="#" class="button special">Activate</a></li> -->
-						<!-- </ul> -->
-					</div>
-					<a href="#one" class="more scrolly" id="moose_wingButton">BE MY WINGMAN</a>
-				</section>
-				<!-- One -->
-				<section id="one" class="wrapper style1 special">
-					<div class="inner">
-						<header class="major">
-							<h2>PLEASE WAIT WHILE WE LOAD YOUR RESULTS...</h2>
-							<p>Your WinBot is currently scrubbing the account for all applicable information.</p>
-							<div class="loader"></div> <!-- USING JS RENAME THIS DIV TO REMOVE LOADING BAR.-->
-							<h2></h2>
-						</header>
-					</div>
-					<a href="/results" class="more scrolly">Results</a>
-				</section>
+	<body>
+		
+		<div class="container">
+			<div class="row">
+				<div class="col-4">
+				</div>
+				<div class="col-4">
+					<form>
+						<div class="form-group">
+							<label for="exampleInputEmail1">Twitter Handle</label>
+							<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+							<small id="emailHelp" class="form-text text-muted">We'll do the rest</small>
+						</div>
+						<button type="submit" class="btn btn-primary">Submit</button>
+					</form>
+				</div>
+				<div class="col-4">
+				</div>
 			</div>
-
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/jquery.scrolly.min.js"></script>
-			<script src="assets/js/skel.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
+		</div>
 
 	</body>
-</html>
 
-<script>
-	$(document).ready(function(){
-		$("#moose_wingButton").on('click', function(){
-			$("#moose_form").submit();
-		})
-	});
-</script>
+</html>

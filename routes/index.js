@@ -45,6 +45,8 @@ router.get('/watson', function(req, res, next){
 });
 
 router.post('/fetchTwitterData', function(req, res, next){
+
+
 	console.log("fetching data...");
 	var process = spawn('python', ["fetchTwitterData.py",
 		req.body.twitter_handle,
@@ -61,7 +63,10 @@ router.post('/fetchTwitterData', function(req, res, next){
 				console.log("Data Received.");
 			});
 			data = JSON.parse(text);
-			res.send(data);
+			data.at = req.body.twitter_handle;
+			data.pp = data.profile_picture_url;
+			console.log("rendering results page");
+			res.render("results", data);
 		});
 
 	});

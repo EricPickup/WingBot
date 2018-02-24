@@ -163,7 +163,6 @@ storeTopMentions()
 with open(str(os.getpid())+'.json', 'w') as f:
     json.dump(tweetData, f, indent=2)
 
-time.sleep(1000);
 exit(0);
 
 # request = Request(url, urlencode(tweetData).encode())

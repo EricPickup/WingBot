@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -23,7 +24,7 @@ int main(int arg_c, char** arg_v) {
 	vector<Mat> images;
 	vector<Mat> detected_faces;
 	vector<vector<Mat> > faces;
-	vector<double> match_ratings;
+	vector<double> match_ratings;  // TODO: implement this
 
 	if (!face_cascade.load(FACE_CASCADE)) {
 		cout << "Cascade load failed" << endl;
@@ -75,9 +76,7 @@ int main(int arg_c, char** arg_v) {
 
 			rating /= faces[i].size();  // Average match [1.0, 0.0] -> [Good, Bad]
 
-			cout << rating << endl;
 			if (rating >= 0.4) {  // Match
-				cout << "Adding" << endl;
 				faces[i].push_back(face);
 				next_face = true;
 				break;
@@ -93,16 +92,22 @@ int main(int arg_c, char** arg_v) {
 		match_ratings.push_back(0.0);
 	}
 
-	cout << faces.size() << endl;
+	system("rm -rf Faces");
+	system("mkdir Faces");
+
 	for (int i = 0; i < faces.size(); i++) {
-		imshow(to_string(i), faces[i][0]);
+		///imshow(to_string(i), faces[i][0]);
+		imwrite("Faces/" + to_string(faces[i].size()) + ".jpg", faces[i][0]);
 	}
 
-	while (true) {
+	waitKey(10);
+	/* UNCOMMENT FOR TESTING
+	while (true)
 		if (char(waitKey(10) == 27)) {
 			break;
 		}
 	}
+	*/
 
 	return 0;
 }

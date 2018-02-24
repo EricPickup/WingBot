@@ -124,7 +124,7 @@ Input: Instance of the current tweet
 Output: Stores the text/date of tweet in json file'''
 def storeTweet(tweet):
     #Retweeted tweets (all begin with "RT ..")
-    tweetText = unicodedata.normalize('NFKD', tweet.full_text).encode('ascii','ignore')
+    tweetText = str(unicodedata.normalize('NFKD', tweet.full_text).encode('ascii','ignore'))
     if "RT " in tweetText:
         tweetText = tweetText.replace("RT ", "")
         tweetData['retweets'].append({

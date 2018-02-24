@@ -6,7 +6,7 @@ from collections import defaultdict
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-url = 'https://wingbot.org/twitterdata' # Set destination URL here
+url = 'http://localhost:3300/twitterdata' # Set destination URL here
 
 #IMPORTANT VARIABLES
 TWITTER_USER = sys.argv[1]			#@Username of the twitter user to be analyzed
@@ -172,10 +172,6 @@ for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name
 
 storeTopMentions()
 
-with open('data.json', 'w') as f:
-    json.dump(tweetData, f, indent=2)
-
-f.close()
 
 request = Request(url, urlencode(tweetData).encode())
 json = urlopen(request).read().decode()

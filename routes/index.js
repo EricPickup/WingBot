@@ -45,33 +45,33 @@ router.post('/fetchTwitterData', function(req, res, next){
 	console.log('python ' + path.join("fetchTwitterData.py") + " " + req.body.twitter_handle + " " + 100)
 	exec('python ' + "fetchTwitterData.py" + " " + req.body.twitter_handle + " " + 30)
 		.then(function (result) {
-			console.log('python compute.py');
-			exec('python compute.py')
-				.then(function (result) {
-					console.log("Data computed !");
-					var data = require('../dataDump');
-					var mentions = require('../data');
-					data.mentions = mentions.top_mentions;
-					data.pp = mentions.profile_picture_url;
-					data.at = req.body.twitter_handle;
-					console.log(data.pp);
-					res.render("results", data);
-				})
-				.catch(function (err) {
-					console.error('ERROR: ', err);
-				});
+			// console.log('python compute.py');
+			// exec('python compute.py')
+			// 	.then(function (result) {
+			// 		console.log("Data computed !");
+			// 		var data = require('../dataDump');
+			// 		var mentions = require('../data');
+			// 		data.mentions = mentions.top_mentions;
+			// 		data.pp = mentions.profile_picture_url;
+			// 		data.at = req.body.twitter_handle;
+			// 		console.log(data.pp);
+			// 		res.render("results", data);
+			// 	})
+			// 	.catch(function (err) {
+			// 		console.error('ERROR: ', err);
+			// 	});
 		})
 		.catch(function (err) {
 			console.error('ERROR: ', err);
 		});
-	// exec("python "+path.join(__dirname, "../fetchTwitterData.py")+" "+req.body.twitter_handle+" 10", function(err, stdout, stderr){
-	// 	if (err){
-	// 		console.error('error while fetching tweets');
-	// 		res.send("error")
-	// 	}
-	// 	console.log("done.");
-	// 	res.redirect("/results");
-	// });
+	res.send("ok!");
+});
+
+router.post('/twitterdata', function(req, res, next) {
+
+	console.log("moose is a faggot");
+	res.send(req.body);
+
 });
 
 module.exports = router;

@@ -47,34 +47,115 @@ router.get('/watson', function(req, res, next){
 router.post('/fetchTwitterData', function(req, res, next){
 
 
-	console.log("fetching data...");
-	var process = spawn('python', ["fetchTwitterData.py",
+	console.log("> spawning fetchTwitterData.py");
+	var twitter_data = spawn('python', ["fetchTwitterData.py",
 		req.body.twitter_handle,
-		300
+		100
 	]);
-	process.on('close', function (data) {
-		var path2link = path.join(__dirname, "../", process.pid + '.json');
-		console.log(path2link);	
-		var data;
-		fs.readFile(path2link, 'utf-8', function (err, text) {
-			if (err) console.log(err);
-			fs.unlink(path2link, function (err) {
-				if (err) console.log(err);
-				console.log("Data Received.");
-			});
+	console.log("> waiting for fetchTwitterData.py to complete");
+	twitter_data.on('close', function (data) {
+		console.log(">> fetchTwitterData.py completed!");
 
+		var pathToTwitterData = path.join(__dirname, "../", twitter_data.pid + '.json');
+		
+		console.log("> reading fetchTwitterData.py output");
+		fs.readFile(pathToTwitterData, 'utf-8', function (err, text) {
+			if (err) console.log(err);
+			console.log("> spawning google_cloud.py");
 			var google_cloud = spawn('python', [
 				"google_cloud.py",
-				"\""+data.toString()+"\""
+				path.join(__dirname, "../"+twitter_data.pid+".json")
 			]);
 
-
-			data = JSON.parse(text);
+			console.log("> spawning computeLikes.py");
+			var computeLikes = spawn('python', [
+				"computeLikes.py",
+				path.join(__dirname, "../" + twitter_data.pid + ".json")
+			]);
+			
+			console.log("> creating data object");
+			data = JSON.parse(text);	
 			data.at = req.body.twitter_handle;
 			data.pp = data.profile_picture_url;
 
-			console.log("rendering results page");
-			res.render("results", data);
+			var ready = false;	
+			var pathToComputeLikes;
+			var pathToGoogleCloud;
+		
+			console.log("> async: waiting for google_cloud.py to finish");
+			google_cloud.on("close", function(google_cloud_data){
+				pathToGoogleCloud = path.join(__dirname, "../", google_cloud.pid + '.txt');
+
+				console.log("> reading google_cloud.py output");
+				fs.readFile(pathToGoogleCloud, 'utf-8', function(err, text){
+					if (err) console.log(err);					
+					data.emotion = text;
+					console.log("> data.emotion set to "+data.emotion);
+				});
+				console.log("> finish ready state is "+ready);
+				if (ready){
+					console.log("> deleting extra files");
+					fs.unlink(pathToComputeLikes, function (err) {
+						if (err) console.log(err);
+					});
+					fs.unlink(pathToGoogleCloud, function (err) {
+						if (err) console.log(err);
+					});
+					fs.unlink(pathToTwitterData, function (err) {
+						if (err) console.log(err);
+					});
+					
+					console.log("> rendering results");
+					return res.render("results", data);
+				}
+				else{
+					console.log("> setting 'finish ready to true");					
+					ready = true;
+				}
+
+			});
+
+			console.log("> async: waiting for computeLikes.py to finish");			
+			computeLikes.on("close", function(compute_likes_data){
+				pathToComputeLikes = path.join(__dirname, "../", computeLikes.pid + '.json');
+				
+				console.log("> reading computeLikes.py output");				
+				fs.readFile(pathToComputeLikes, 'utf-8', function (err, text) {
+					if (err) console.log(err);
+					console.log("text: " + text);
+					text = JSON.parse(text);
+					data.likes = text.likes;
+					console.log("> data.likes is set to " + data.likes);
+					data.dislikes = text.dislikes;
+					console.log("> data.dislikes is set to " + data.likes);
+				});
+						
+
+				console.log("> finish ready state is " + ready);				
+				if (ready) {
+					console.log("> deleting extra files");
+					fs.unlink(pathToComputeLikes, function (err) {
+						if (err) console.log(err);
+					});
+					fs.unlink(pathToGoogleCloud, function (err) {
+						if (err) console.log(err);
+					});
+					fs.unlink(pathToTwitterData, function (err) {
+						if (err) console.log(err);
+					});
+
+					console.log("> rendering results");
+					return res.render("results", data);
+				}
+				else {
+					console.log("> setting finish ready to true");										
+					ready = true;
+				}
+
+			});
+
+
+
 		});
 
 	});

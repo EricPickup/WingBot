@@ -46,15 +46,28 @@ router.get('/watson', function(req, res, next){
 
 router.post('/fetchTwitterData', function(req, res, next){
 	console.log("fetching data...");
-	const process = spawn('python', ["fetchTwitterData.py",
+	var process = spawn('python', ["fetchTwitterData.py",
 		req.body.twitter_handle,
-		30
+		300
 	]);
-	// process.stdout.on('data', function (data) {
-	// 	console.log("sending!");
-	// 	res.send(data.toString());
-	// });
-	console.log(process.pid);
+	process.on('close', function (data) {
+		var path2link = path.join(__dirname, "../", process.pid + '.json');
+		console.log(path2link);	
+		var data;
+		fs.readFile(path2link, 'utf-8', function (err, text) {
+			if (err) console.log(err);
+			fs.unlink(path2link, function (err) {
+				if (err) console.log(err);
+				console.log("Data Received.");
+			});
+			data = JSON.parse(text);
+			res.send(data);
+		});
+
+	});
+	
+
+	//console.log(data);
 	// exec('python ' + "fetchTwitterData.py" + " " + req.body.twitter_handle + " " + 300, function (err, stdout, stderr) {
 	// 	// process.stdout.on(‘data’, function (data) {
 	// 	// 	res.send(data.toString());

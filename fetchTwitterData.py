@@ -2,6 +2,7 @@ import tweepy
 import sys
 import json
 import unicodedata
+import os
 from collections import defaultdict
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -159,6 +160,11 @@ for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name
 
 storeTopMentions()
 
-print(str(tweetData));
+with open(str(os.getpid())+'.json', 'w') as f:
+    json.dump(tweetData, f, indent=2)
+
+time.sleep(1000);
+exit(0);
+
 # request = Request(url, urlencode(tweetData).encode())
 # json = urlopen(request).read().decode()

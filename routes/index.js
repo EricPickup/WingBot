@@ -186,7 +186,8 @@ router.post('/fetchTwitterData', function(req, res, next){
 						if (err) console.log(err);
 						pictures.forEach(function(pic){
 							data.cv.photos.push({
-								url: path.join("/images/" + Playground.pid, "/Faces/", pic)
+								url: path.join("/images/" + Playground.pid, "/Faces/", pic),
+								frequency: pic.split(" ")[1].split(".")[0]
 							});
 						});
 					});

@@ -25,6 +25,11 @@ void detectFaces(Mat frame, vector<Mat>& detected_faces);
 CascadeClassifier face_cascade;
 
 int main(int arg_c, char** arg_v) {
+	if (arg_c == 1) {
+		cout << "Usage: ./Playground img1 img2 img3 ..." << endl;
+		return -1;
+	}
+
 	vector<Mat> images;
 	vector<Mat> detected_faces;
 	vector<vector<Mat> > faces;

@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <sys/types.h>
+#include <unistd.h>
 #include <vector>
 
 #include "curl/curl.h"
@@ -10,6 +12,7 @@
 #include "opencv2/imgproc.hpp"
 
 #define FACE_CASCADE "Data/haarcascade_frontalface_alt.xml"
+#define MATCH_THRESH 0.45
 
 using namespace cv;
 using namespace std;
@@ -76,7 +79,7 @@ int main(int arg_c, char** arg_v) {
 
 			rating /= faces[i].size();  // Average match [1.0, 0.0] -> [Good, Bad]
 
-			if (rating >= 0.4) {  // Match
+			if (rating >= MATCH_THRESH) {  // Match
 				faces[i].push_back(face);
 				next_face = true;
 				break;
@@ -92,17 +95,32 @@ int main(int arg_c, char** arg_v) {
 		match_ratings.push_back(0.0);
 	}
 
-	system("rm -rf Faces");
-	system("mkdir Faces");
+	system(("rm -rf " + to_string(getpid())).c_str());
+	system(("mkdir " + to_string(getpid())).c_str());
+	system(("mkdir " + to_string(getpid()) + "/Faces").c_str());
+	system(("mkdir " + to_string(getpid()) + "/Profile").c_str());
+
+	int highest_freq_index = 0;
 
 	for (int i = 0; i < faces.size(); i++) {
-		///imshow(to_string(i), faces[i][0]);
-		imwrite("Faces/" + to_string(faces[i].size()) + ".jpg", faces[i][0]);
+		/*
+		for (int j = 0; j < faces[i].size(); j++) {
+			imshow(to_string(i) + " " + to_string(j), faces[i][j]);
+		}
+		*/
+		if (faces[i].size() > faces[highest_freq_index].size())
+			highest_freq_index = i;
+
+		imwrite(to_string(getpid()) + "/Faces/" + to_string(i) + " " + to_string(faces[i].size()) + ".jpg", faces[i][0]);
+	}
+
+	for (int i = 0; i < faces[highest_freq_index].size(); i++) {
+		imwrite(to_string(getpid()) + "/Profile/" + to_string(i) + ".jpg", faces[highest_freq_index][i]);
 	}
 
 	waitKey(10);
-	/* UNCOMMENT FOR TESTING
-	while (true)
+	/*
+	while (true) {
 		if (char(waitKey(10) == 27)) {
 			break;
 		}

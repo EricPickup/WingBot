@@ -88,6 +88,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 			data.pp = data.profile_picture_url;
 
 			console.log("> spawning Playground");
+			console.log(data.images);
 			var imageUrls = data.images.map(function(image){
 				return image.URL;
 			});

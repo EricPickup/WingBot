@@ -13,6 +13,10 @@ iostream
 -
 string
 -
+sys/types.h
+-
+unistd.h
+-
 vector
 -
 curl/curl.h

@@ -47,12 +47,14 @@ router.get("/error", function(req, res, next){
 router.post('/fetchTwitterData', function(req, res, next){
 
 	var data;
+
+	
 	console.log("> spawning fetchTwitterData.py");
 	console.log(req.body);
 	req.body.handle = req.body.handle.replace("@", "");
 	var tweetLimit = 80;
 	var playCV = true;
-	var twitter_data = spawn('python', ["fetchTwitterData.py",
+	var twitter_data = spawn('python3', ["fetchTwitterData.py",
 		req.body.handle,
 		tweetLimit
 	]);
@@ -66,19 +68,19 @@ router.post('/fetchTwitterData', function(req, res, next){
 		fs.readFile(pathToTwitterData, 'utf-8', function (err, text) {
 			if (err) console.log(err);
 			console.log("> spawning google_cloud.py");
-			var google_cloud = spawn('python', [
+			var google_cloud = spawn('python3', [
 				"google_cloud.py",
 				path.join(__dirname, "../"+twitter_data.pid+".json")
 			]);
 
 			console.log("> spawning computeLikes.py");
-			var computeLikes = spawn('python', [
+			var computeLikes = spawn('python3', [
 				"computeLikes.py",
 				path.join(__dirname, "../" + twitter_data.pid + ".json")
 			]);
 
 			console.log("> spawning classifyText.py");
-			var classifyText = spawn('python', [
+			var classifyText = spawn('python3', [
 				"classifyText.py",
 				path.join(__dirname, "../" + twitter_data.pid + ".json")
 			]);
@@ -98,7 +100,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 					return image.URL;
 				});
 				console.log(imageUrls);
-				var Playground = spawn('../image-analysis/Playground', imageUrls);
+				var Playground = spawn(path.join(__dirname, '../image-analysis/Playground'), imageUrls);
 			}
 
 			// console.log("> formatting chart data");
@@ -166,17 +168,25 @@ router.post('/fetchTwitterData', function(req, res, next){
 			var pathToGoogleCloud;
 
 			if (playCV){
+
+				Playground.stdout.on('data', function(d){
+					console.log(d)
+				});
+
+
 				Playground.on("close", function (dt) {
 					cv = true;
 
 
 					data.cv = {}
-					data.cv.playground_PID = Playground.getpid();
+					data.cv.playground_PID = Playground.pid;
 					data.cv.photos = []
-					fs.readdir(path.join(__dirname, "../public/images/", Playground.getpid(), "/Faces"), function(err, pictures){
+					console.log(Playground.pid);
+					fs.readdir(path.join(__dirname, "../public/images/" + Playground.pid, "/Faces"), function(err, pictures){
+						if (err) console.log(err);
 						pictures.forEach(function(pic){
-							data.cv.photos.append({
-								url: path.join("/images/", Playground.getpid(), "/Faces/", pic)
+							data.cv.photos.push({
+								url: path.join("/images/" + Playground.pid, "/Faces/", pic)
 							});
 						});
 					});

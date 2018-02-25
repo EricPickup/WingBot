@@ -129,6 +129,39 @@ router.post('/fetchTwitterData', function(req, res, next){
 						"ageRecognition.py",
 						Playground.pid
 					]);
+					ageRecognition.stdout.on("data", function (dat) {
+						console.log("\n\n\n\n\nGETTING AGE HERE\n\n\n\n\n");
+						data.age = dat;
+						console.log(data.age);
+
+						age = true;
+						if (one && two && three && cv && age) {
+							console.log("> rendering results");
+							if (pathToClassifyText) {
+								fs.unlink(pathToClassifyText, function (err) {
+									if (err) console.log(err);
+								});
+							}
+							if (pathToGoogleCloud) {
+								fs.unlink(pathToGoogleCloud, function (err) {
+									if (err) console.log(err);
+								});
+							}
+							if (pathToComputeLikes) {
+								fs.unlink(pathToComputeLikes, function (err) {
+									if (err) console.log(err);
+								});
+							}
+							if (pathToTwitterData) {
+								fs.unlink(pathToTwitterData, function (err) {
+									if (err) console.log(err);
+								});
+							}
+							console.log(data);
+
+							return res.render("results", data);
+						}
+					});
 
 					data.cv = {}
 					data.cv.playground_PID = Playground.pid;
@@ -173,39 +206,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 
 				});
 				
-				ageRecognition.stdout.on("data", function(dat){
-					console.log("\n\n\n\n\nGETTING AGE HERE\n\n\n\n\n");
-					data.age = dat;
-					console.log(data.age);
-
-					age = true;
-					if (one && two && three && cv && age) {
-						console.log("> rendering results");
-						if (pathToClassifyText) {
-							fs.unlink(pathToClassifyText, function (err) {
-								if (err) console.log(err);
-							});
-						}
-						if (pathToGoogleCloud) {
-							fs.unlink(pathToGoogleCloud, function (err) {
-								if (err) console.log(err);
-							});
-						}
-						if (pathToComputeLikes) {
-							fs.unlink(pathToComputeLikes, function (err) {
-								if (err) console.log(err);
-							});
-						}
-						if (pathToTwitterData) {
-							fs.unlink(pathToTwitterData, function (err) {
-								if (err) console.log(err);
-							});
-						}
-						console.log(data);
-
-						return res.render("results", data);
-					}
-				});
+				
 
 
 			}

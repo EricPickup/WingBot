@@ -50,7 +50,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 	console.log("> spawning fetchTwitterData.py");
 	console.log(req.body);
 	req.body.handle = req.body.handle.replace("@", "");
-	var tweetLimit = 500;
+	var tweetLimit = 20;
 	var twitter_data = spawn('python', ["fetchTwitterData.py",
 		req.body.handle,
 		tweetLimit
@@ -77,33 +77,46 @@ router.post('/fetchTwitterData', function(req, res, next){
 			]);
 			
 			console.log("> creating data object");
-			data = JSON.parse(text);	
+			data = JSON.parse(text);
 			data.at = req.body.handle;
 			data.pp = data.profile_picture_url;
 
-			console.log("> computing tweet frequency");
-			var first_date = {
-				year: parseInt(data.direct_tweets[0].date.substring(0, 4)),
-				month: parseInt(data.direct_tweets[0].date.substring(5, 7)),
-				day: parseInt(data.direct_tweets[0].date.substring(8))
-			}
-
-			var last_date = {
-				year: parseInt(data.direct_tweets[data.direct_tweets.length - 1].date.substring(0, 4)),
-				month: parseInt(data.direct_tweets[data.direct_tweets.length - 1].date.substring(5, 7)),
-				day: parseInt(data.direct_tweets[data.direct_tweets.length - 1].date.substring(8))
-			}
-
-			var frequencyScore = 0;
-			frequencyScore += 365*Math.abs(first_date.year - last_date.year);
-			frequencyScore += 30*Math.abs(first_date.month - last_date.month);
-			frequencyScore += 1*Math.abs(first_date.day - last_date.day);
-		
-			console.log(frequencyScore);
-
-			frequencyScore = (frequencyScore != 0) ? tweetLimit/frequencyScore : tweetLimit;
-
-			console.log(frequencyScore);
+			console.log("> formatting chart data");
+			data.chart = {
+				type: 'line',
+				data: {
+					labels: [],
+					datasets: [{
+						label: '# of Votes',
+						data: [12, 19, 3, 5, 2, 3],
+						backgroundColor: [
+							'rgba(255, 99, 132, 0.2)',
+							'rgba(54, 162, 235, 0.2)',
+							'rgba(255, 206, 86, 0.2)',
+							'rgba(75, 192, 192, 0.2)',
+							'rgba(153, 102, 255, 0.2)',
+							'rgba(255, 159, 64, 0.2)'
+						],
+						borderColor: [
+							'rgba(255,99,132,1)',
+							'rgba(54, 162, 235, 1)',
+							'rgba(255, 206, 86, 1)',
+							'rgba(75, 192, 192, 1)',
+							'rgba(153, 102, 255, 1)',
+							'rgba(255, 159, 64, 1)'
+						],
+						borderWidth: 1
+					}]
+				},
+				options: {
+					scales: {
+						yAxes: [{
+							ticks: {
+								beginAtZero: true
+							}
+						}]
+					}
+				}
 
 			var ready = false;
 			var pathToComputeLikes;

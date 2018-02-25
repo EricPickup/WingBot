@@ -30,7 +30,7 @@ def findKeywords(data, overallLikes):
 			for mention in entity.mentions:
 				if mention.sentiment.score:
 					entityName = entity.name.lower()
-					if "http://" not in str(entityName) and "https://" not in str(entityName):
+					if "http://" not in str(entityName) and "https://" not in str(entityName) and "&" not in str(entityName) and "\\" not in str(entityName):
 						if float(mention.sentiment.score) > 0:
 							if entityName in overallLikes['dislikes']:
 								overallLikes['dislikes'][entityName] -= 1

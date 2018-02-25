@@ -46,9 +46,48 @@
 					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-s3">
-					
+			<div class="row" style="margin-top: 5vh;">
+				<div class="col-s3" style="margin-right: 1vh;">
+					<div class="card" style="width: 18rem;">
+						<div class="card-header">
+							Likes
+						</div>
+						<ul class="list-group list-group-flush">
+							<% if (likes){ %>
+								<% for (var like in likes) { %>
+									<li class="list-group-item"><%= like %></li>
+								<% } %>
+							<% } %>
+						</ul>
+					</div>
+				</div>
+				<div class="col-s3" style="margin-right: 1vh;">
+					<div class="card" style="width: 18rem;">
+						<div class="card-header">
+							Dislikes
+						</div>
+						<ul class="list-group list-group-flush">
+							<% if (dislikes){ %>							
+								<% for (var dislike in dislikes) { %>							
+									<li class="list-group-item"><%= dislike %></li>
+								<% } %>
+							<% } %>
+						</ul>
+					</div>
+				</div>
+				<div class="col-s3" style="margin-right: 1vh;">
+					<div class="card" style="width: 18rem;">
+						<div class="card-header">
+							Interests
+						</div>
+						<ul class="list-group list-group-flush">
+							<% if (categories){ %>
+								<% categories.forEach(function(cat){%>
+									<li class="list-group-item"><%= cat %></li>
+								<% }); %>
+							<% } %>
+						</ul>
+					</div>
 				</div>
 			</div>
 			<br>

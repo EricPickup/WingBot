@@ -50,13 +50,13 @@ router.post('/fetchTwitterData', function(req, res, next){
 	console.log("> spawning fetchTwitterData.py");
 	console.log(req.body);
 	req.body.handle = req.body.handle.replace("@", "");
-	var tweetLimit = 100;
+	var tweetLimit = 200;
 	var twitter_data = spawn('python', ["fetchTwitterData.py",
 		req.body.handle,
 		tweetLimit
 	]);
 	console.log("> waiting for fetchTwitterData.py to complete");
-	twitter_data.on('close', function (data) {
+	twitter_data.on('close', function (twitter_data_data) {
 		console.log(">> fetchTwitterData.py completed!");
 
 		var pathToTwitterData = path.join(__dirname, "../", twitter_data.pid + '.json');
@@ -182,6 +182,8 @@ router.post('/fetchTwitterData', function(req, res, next){
 							if (err) console.log(err);
 						});
 					}
+					console.log(data);
+					
 					return res.render("results", data);
 				}
 			});
@@ -195,10 +197,11 @@ router.post('/fetchTwitterData', function(req, res, next){
 					if (err) console.log(err);
 					console.log("text: " + text);
 					text = JSON.parse(text);
+					console.log(JSON.stringify(text));
 					data.likes = text.likes;
-					console.log("> data.likes is set to " + data.likes);
+					console.log("> data.likes is set to " + JSON.stringify(data.likes));
 					data.dislikes = text.dislikes;
-					console.log("> data.dislikes is set to " + data.likes);
+					console.log("> data.dislikes is set to " + JSON.stringify(data.dislikes));
 					
 				});
 						
@@ -226,6 +229,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 							if (err) console.log(err);
 						});
 					}
+					console.log(data);
 					return res.render("results", data);
 				}
 
@@ -265,6 +269,8 @@ router.post('/fetchTwitterData', function(req, res, next){
 							if (err) console.log(err);
 						});
 					}
+					console.log(data);
+					
 					return res.render("results", data);
 				}
 			});

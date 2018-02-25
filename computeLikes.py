@@ -31,12 +31,16 @@ def findKeywords(data, overallLikes):
 				if mention.sentiment.score:
 					entityName = entity.name.lower()
 					if float(mention.sentiment.score) > 0:
-						if entityName in overallLikes['likes']:
+						if entityName in overallLikes['dislikes']:
+							overallLikes['dislikes'][entityName] -= 1
+						elif entityName in overallLikes['likes']:
 							overallLikes['likes'][entityName] += 1
 						else:
 							overallLikes['likes'][entityName] = 1
 					elif float(mention.sentiment.score) < 0:
-						if entityName in overallLikes['dislikes']:
+						if entityName in overallLikes['likes']:
+							overallLikes['likes'][entityName] -= 1
+						elif entityName in overallLikes['dislikes']:
 							overallLikes['dislikes'][entityName] += 1
 						else:
 							overallLikes['dislikes'][entityName] = 1
@@ -45,13 +49,15 @@ def findKeywords(data, overallLikes):
 	topLikes['dislikes'] = dict()
 	count = 0
 	for word in sorted(overallLikes['likes'], key=overallLikes['likes'].get, reverse=True):
-		topLikes['likes'][word] = overallLikes['likes'][word]
+		if overallLikes['likes'][word] > 0:
+			topLikes['likes'][word] = overallLikes['likes'][word]
 		count += 1
 		if count > MAX_TOP_LIKES:
 			break
 	count = 0
 	for word in sorted(overallLikes['dislikes'], key=overallLikes['dislikes'].get, reverse=True):
-		topLikes['dislikes'][word] = overallLikes['dislikes'][word]
+		if overallLikes['dislikes'][word] > 0:
+			topLikes['dislikes'][word] = overallLikes['dislikes'][word]
 		count += 1
 		if count > MAX_TOP_LIKES:
 			break

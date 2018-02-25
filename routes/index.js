@@ -88,6 +88,8 @@ router.post('/fetchTwitterData', function(req, res, next){
 			data.at = req.body.handle;
 			data.pp = data.profile_picture_url;
 			if (data.images.length > 0) playCV = false;
+			if (!playCV) console.log("no cv");
+			console.log(data.images.length);
 
 			if (playCV){
 				console.log("> spawning Playground");

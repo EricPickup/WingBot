@@ -65,7 +65,7 @@ else:
 		ageSum += age
 	ageSum = ageSum / len(female)
 
-with open(str(os.getpid())+'.txt', 'w') as f:
+with open(sys.argv[1]+'.txt', 'w') as f:
     json.dump(ageSum, f, indent=2)
 
 f.close()

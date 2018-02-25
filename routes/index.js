@@ -13,7 +13,7 @@ var spawn = require('child_process').spawn;
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	res.render('index', { title: 'Express' });
+	res.render('index');
 });
 router.get('/results', function(req, res, next){
 	res.render('results');
@@ -23,34 +23,37 @@ router.get("/error", function(req, res, next){
 	res.render('error');
 });
 
-router.get('/watson', function(req, res, next){
-	console.log(config.IBM.api_key);
-	var visual_recognition = watson.visual_recognition({
-		api_key: config.IBM.api_key,
-		version: 'v3',
-		version_date: '2016-05-20'
-	});
-	var params = {
-		images_file: fs.createReadStream(path.join(__dirname, '../public/images/eric.jpg'))
-	}
-	visual_recognition.detectFaces(params,
-		function(err, response) {
-			if (err)
-				console.log(err);
-			else
-				console.log(JSON.stringify(response, null, 2));
-		}
-	);
-	res.send("ok!");
-});
+// router.get('/watson', function(req, res, next){
+// 	console.log(config.IBM.api_key);
+// 	var visual_recognition = watson.visual_recognition({
+// 		api_key: config.IBM.api_key,
+// 		version: 'v3',
+// 		version_date: '2016-05-20'
+// 	});
+// 	var params = {
+// 		images_file: fs.createReadStream(path.join(__dirname, '../public/images/eric.jpg'))
+// 	}
+// 	visual_recognition.detectFaces(params,
+// 		function(err, response) {
+// 			if (err)
+// 				console.log(err);
+// 			else
+// 				console.log(JSON.stringify(response, null, 2));
+// 		}
+// 	);
+// 	res.send("ok!");
+// });
 
 router.post('/fetchTwitterData', function(req, res, next){
 
 
 	console.log("> spawning fetchTwitterData.py");
+	console.log(req.body);
+	req.body.handle = req.body.handle.replace("@", "");
+	var tweetLimit = 500;
 	var twitter_data = spawn('python', ["fetchTwitterData.py",
-		req.body.twitter_handle,
-		100
+		req.body.handle,
+		tweetLimit
 	]);
 	console.log("> waiting for fetchTwitterData.py to complete");
 	twitter_data.on('close', function (data) {
@@ -75,7 +78,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 			
 			console.log("> creating data object");
 			data = JSON.parse(text);	
-			data.at = req.body.twitter_handle;
+			data.at = req.body.handle;
 			data.pp = data.profile_picture_url;
 
 			console.log("> computing tweet frequency");
@@ -95,8 +98,10 @@ router.post('/fetchTwitterData', function(req, res, next){
 			frequencyScore += 365*Math.abs(first_date.year - last_date.year);
 			frequencyScore += 30*Math.abs(first_date.month - last_date.month);
 			frequencyScore += 1*Math.abs(first_date.day - last_date.day);
+		
+			console.log(frequencyScore);
 
-			frequencyScore = (frequencyScore != 0) ? 100/frequencyScore : 100;
+			frequencyScore = (frequencyScore != 0) ? tweetLimit/frequencyScore : tweetLimit;
 
 			console.log(frequencyScore);
 
@@ -182,43 +187,6 @@ router.post('/fetchTwitterData', function(req, res, next){
 
 	});
 	
-
-	//console.log(data);
-	// exec('python ' + "fetchTwitterData.py" + " " + req.body.twitter_handle + " " + 300, function (err, stdout, stderr) {
-	// 	// process.stdout.on(‘data’, function (data) {
-	// 	// 	res.send(data.toString());
-	// 	// });
-
-
-	// 	res.send(stdout);
-
-	// 	// console.log('python compute.py');
-	// 	// exec('python compute.py')
-	// 	// 	.then(function (result) {
-	// 	// 		console.log("Data computed !");
-	// 	// 		var data = require('../dataDump');
-	// 	// 		var mentions = require('../data');
-	// 	// 		data.mentions = mentions.top_mentions;
-	// 	// 		data.pp = mentions.profile_picture_url;
-	// 	// 		data.at = req.body.twitter_handle;
-	// 	// 		console.log(data.pp);
-	// 	// 		res.render("results", data);
-	// 	// 	})
-	// 	// 	.catch(function (err) {
-	// 	// 		console.error('ERROR: ', err);
-	// 	// 	});
-	// 	//res.redirect("error");
-	// })
-	// .catch(function (err) {
-	// 	console.error('ERROR: ', err);
-	// });
 });
-
-// router.post('/twitterdata', function(req, res, next) {
-
-// 	console.log(req.body);
-// 	res.render("error");
-
-// });
 
 module.exports = router;

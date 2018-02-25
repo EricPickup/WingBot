@@ -1,31 +1,80 @@
+<!DOCTYPE html>
 <html>
 
 	<head>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
 		 crossorigin="anonymous">
+		<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+		 crossorigin="anonymous"></script>
 	</head>
 
-	<body>
-		
-		<div class="container">
-			<div class="row">
-				<div class="col-4">
-				</div>
-				<div class="col-4">
-					<form>
+	<body style="background-color: #F5F5F5;">
+
+		<div class="window">
+			<img src="/images/spinner.gif" alt="LOADING" style="position: absolute; left: 42vw; top: 30vh;">		
+			<h3 id="loading" style="text-align: center; margin-top: 10vh;">Parsing Twitter for fun data.</h3>
+			<!-- <img src="/images/load.gif" alt="LOADING" height="100%" width="100%"> -->
+		</div>
+
+		<div class="container" style="margin-top: 20vh;">
+			<div class="row" style="margin-top:2vh;">
+				<div class="col-4"></div>
+				<div class="col-4 mx-auto" width="100%">
+					<h1 style="text-align: left;">Wingbot.</h1>
+					<h6 style="text-align: left; font-size: 14px;">Profile your crush to maximize slide-in success.</h6>
+					<form action="/fetchTwitterData" method="POST" id="submitForm">
 						<div class="form-group">
-							<label for="exampleInputEmail1">Twitter Handle</label>
-							<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-							<small id="emailHelp" class="form-text text-muted">We'll do the rest</small>
+							<label for="handle" style="text-align: center;">Twitter Handle</label>
+							<input type="text" class="form-control" id="handle" value="@" name="handle">
+							<small id="handleText" class="form-text text-muted">We'll take it from here.</small>
 						</div>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</form>
 				</div>
-				<div class="col-4">
-				</div>
+				<div class="col-4"></div>
 			</div>
 		</div>
 
 	</body>
 
 </html>
+
+<style>
+	html {
+		overflow: hidden;
+	}
+
+	.window{
+		width: 100vw;
+		height: 100vh;
+		overflow: hidden;
+		visibility: hidden;
+		position: absolute;
+		background-color: #F5F5F5;
+		left: 0px;
+		top: 0px;
+		z-index: 999;
+	}
+</style>
+
+<script>
+	$(document).ready(function(){
+		$(".window").css("visibility", "hidden");
+		var dotCounter = 0;
+
+		$("#submitForm").on("submit", function(){
+			$(".window").css("visibility", "visible");
+			setInterval(function () {
+				$("#loading").append(".")
+				dotCounter++;
+				if (dotCounter > 10){
+					$("#loading").text("Parsing Twitter for fun data.");
+					dotCounter = 0;
+				}
+			}, 1000);
+		});
+
+
+
+	});
+</script>

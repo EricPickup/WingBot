@@ -47,11 +47,14 @@ router.get("/error", function(req, res, next){
 router.post('/fetchTwitterData', function(req, res, next){
 
 	var data;
+
+	
 	console.log("> spawning fetchTwitterData.py");
 	console.log(req.body);
 	req.body.handle = req.body.handle.replace("@", "");
 	var tweetLimit = 80;
-	var twitter_data = spawn('python', ["fetchTwitterData.py",
+	var playCV = true;
+	var twitter_data = spawn('python3', ["fetchTwitterData.py",
 		req.body.handle,
 		tweetLimit
 	]);
@@ -65,89 +68,152 @@ router.post('/fetchTwitterData', function(req, res, next){
 		fs.readFile(pathToTwitterData, 'utf-8', function (err, text) {
 			if (err) console.log(err);
 			console.log("> spawning google_cloud.py");
-			var google_cloud = spawn('python', [
+			var google_cloud = spawn('python3', [
 				"google_cloud.py",
 				path.join(__dirname, "../"+twitter_data.pid+".json")
 			]);
 
 			console.log("> spawning computeLikes.py");
-			var computeLikes = spawn('python', [
+			var computeLikes = spawn('python3', [
 				"computeLikes.py",
 				path.join(__dirname, "../" + twitter_data.pid + ".json")
 			]);
 
 			console.log("> spawning classifyText.py");
-			var classifyText = spawn('python', [
+			var classifyText = spawn('python3', [
 				"classifyText.py",
 				path.join(__dirname, "../" + twitter_data.pid + ".json")
 			]);
+
 			
 			console.log("> creating data object");
 			data = JSON.parse(text);
 			data.at = req.body.handle;
 			data.pp = data.profile_picture_url;
+			if (data.images.length <= 0) playCV = false;
+			if (!playCV) console.log("no cv");
+			console.log(data.images.length);
 
-			// console.log("> formatting chart data");
+			if (playCV){
+				console.log("> spawning Playground");
+				console.log(data.images);
+				var imageUrls = data.images.map(function(image){
+					return image.URL;
+				});
+				console.log(imageUrls);
+				var Playground = spawn(path.join(__dirname, '../image-analysis/Playground'), imageUrls);
 
-			// var labels = [];
-			// var values = [];
-			// var dayCount = -1;
-
-			// data.direct_tweets.forEach(function(tweet){
-			// 	let day = tweet.date.substring(0, 10);
-			// 	let index = labels.indexOf(day);
-			// 	if (index == -1){
-			// 		labels.push(day);
-			// 		values.push(1);
-			// 	}
-			// 	else{
-			// 		values[index]++;
-			// 	}
-			// });
-
-			// data.chart = {
-			// 	type: 'line',
-			// 		data: {
-			// 		labels: labels,
-			// 			datasets: [{
-			// 				label: '# of Tweets / Day',
-			// 				data: values,
-			// 				backgroundColor: [
-			// 					'rgba(255, 99, 132, 0.2)',
-			// 					'rgba(54, 162, 235, 0.2)',
-			// 					'rgba(255, 206, 86, 0.2)',
-			// 					'rgba(75, 192, 192, 0.2)',
-			// 					'rgba(153, 102, 255, 0.2)',
-			// 					'rgba(255, 159, 64, 0.2)'
-			// 				],
-			// 				borderColor: [
-			// 					'rgba(255,99,132,1)',
-			// 					'rgba(54, 162, 235, 1)',
-			// 					'rgba(255, 206, 86, 1)',
-			// 					'rgba(75, 192, 192, 1)',
-			// 					'rgba(153, 102, 255, 1)',
-			// 					'rgba(255, 159, 64, 1)'
-			// 				],
-			// 				borderWidth: 1
-			// 			}]
-			// 	},
-			// 	options: {
-			// 		scales: {
-			// 			yAxes: [{
-			// 				ticks: {
-			// 					beginAtZero: true
-			// 				}
-			// 			}]
-			// 		}
-			// 	}
-			// }
+				// console.log("> spawning ageRecognition.py");
+				// var ageRecognition = spawn('python3', [
+				// 	"ageRecognition.py",
+				// 	Playground.pid
+				// ]);
+			}
 
 			var one = false;
 			var two = false;
 			var three = false;
+			var age = true;
+			var cv = false;
+			if (!playCV){
+				cv = true;
+				age = true;
+			}
 
 			var pathToComputeLikes;
 			var pathToGoogleCloud;
+			var pathToAgeRecognition;
+
+			if (playCV){
+
+				Playground.on("close", function (dt) {
+					cv = true;
+
+
+					data.cv = {}
+					data.cv.playground_PID = Playground.pid;
+					data.cv.photos = []
+					console.log(Playground.pid);
+					fs.readdir(path.join(__dirname, "../public/images/" + Playground.pid, "/Faces"), function(err, pictures){
+						if (err) console.log(err);
+						pictures.forEach(function(pic){
+							data.cv.photos.push({
+								url: path.join("/images/" + Playground.pid, "/Faces/", pic),
+								frequency: pic.split(" ")[1].split(".")[0]
+							});
+						});
+					});
+
+
+
+					if (one && two && three && cv) {
+						console.log("> rendering results");
+						if (pathToClassifyText) {
+							fs.unlink(pathToClassifyText, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToGoogleCloud) {
+							fs.unlink(pathToGoogleCloud, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToComputeLikes) {
+							fs.unlink(pathToComputeLikes, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToTwitterData) {
+							fs.unlink(pathToTwitterData, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						console.log(data);
+
+						return res.render("results", data);
+					}
+				});
+
+				// ageRecognition.on("close", function(q){
+				// 	pathToAgeRecognition = path.join(__dirname, "../", ageRecognition.pid + '.txt');
+
+				// 	fs.readFile(pathToAgeRecognition, 'utf-8', function(err, text){
+
+				// 		console.log("AGE: "+text);
+
+				// 		data.age = text;
+
+				// 		if (one && two && three && cv && age) {
+				// 			console.log("> rendering results");
+				// 			if (pathToClassifyText) {
+				// 				fs.unlink(pathToClassifyText, function (err) {
+				// 					if (err) console.log(err);
+				// 				});
+				// 			}
+				// 			if (pathToGoogleCloud) {
+				// 				fs.unlink(pathToGoogleCloud, function (err) {
+				// 					if (err) console.log(err);
+				// 				});
+				// 			}
+				// 			if (pathToComputeLikes) {
+				// 				fs.unlink(pathToComputeLikes, function (err) {
+				// 					if (err) console.log(err);
+				// 				});
+				// 			}
+				// 			if (pathToTwitterData) {
+				// 				fs.unlink(pathToTwitterData, function (err) {
+				// 					if (err) console.log(err);
+				// 				});
+				// 			}
+				// 			console.log(data);
+
+				// 			return res.render("results", data);
+				// 		}
+				// 	});
+
+				// });
+
+			}
 		
 			console.log("> async: waiting for google_cloud.py to finish");
 			google_cloud.on("close", function(google_cloud_data){
@@ -159,7 +225,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 					data.emotion = text;
 					console.log("> data.emotion set to "+data.emotion);
 					one = true;
-					if (one && two && three) {
+					if (one && two && three && cv ) {
 						console.log("> rendering results");
 						if (pathToClassifyText) {
 							fs.unlink(pathToClassifyText, function (err) {
@@ -206,7 +272,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 					
 					two = true;
 
-					if (one && two && three) {
+					if (one && two && three && cv) {
 						console.log("> rendering results");
 						if (pathToClassifyText) {
 							fs.unlink(pathToClassifyText, function (err) {
@@ -248,7 +314,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 					data.categories = JSON.parse(text).categories;
 					console.log(data.categories);
 					three = true;
-					if (one && two && three) {
+					if (one && two && three && cv) {
 						console.log("> rendering results");
 						if (pathToClassifyText) {
 							fs.unlink(pathToClassifyText, function (err) {

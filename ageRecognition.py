@@ -6,7 +6,7 @@ import sys
 
 def getImagePaths():
 	paths = []
-	path = "image-analysis/" + sys.argv[1] + "/Profile"
+	path = "public/images/" + sys.argv[1] + "/Profile"
 	for root, dirs, files in os.walk(path):
 		for file_ in files:
 			paths.append(os.path.join(root, file_))
@@ -65,4 +65,7 @@ else:
 		ageSum += age
 	ageSum = ageSum / len(female)
 
-print(ageSum)
+with open(str(os.getpid())+'.txt', 'w') as f:
+    json.dump(ageSum, f, indent=2)
+
+close(f)

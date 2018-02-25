@@ -15,7 +15,6 @@ MAX_MENTIONS = 10					#Maximum number of top mentions to store (i.e. store top 1
 #Building the JSON format
 tweetData = {}
 tweetData['direct_tweets'] = []
-tweetData['retweets'] = []
 tweetData['images'] = []
 tweetData['top_mentions'] = []
 tweetData['profile_picture_url'] = ""
@@ -114,18 +113,12 @@ Output: Stores the text/date of tweet in json file'''
 def storeTweet(tweet):
     #Retweeted tweets (all begin with "RT ..")
     tweetText = str(unicodedata.normalize('NFKD', tweet.full_text).encode('ascii','ignore'))
-    if "RT " in tweetText:
-        tweetText = tweetText.replace("RT ", "")
-        tweetData['retweets'].append({
-            'text': str(tweetText),
-            'date': str(tweet.created_at)
-            })
-    #Other tweets (mentions or regular tweets)
-    else:
-        tweetData['direct_tweets'].append({
-            'text': str(currentTweet),
-            'date': str(tweet.created_at)
-            })
+    tweetText = tweetText.replace("RT ", "")
+    tweetText = sliceMentions(tweetText, tweet)
+    tweetData['direct_tweets'].append({
+        'text': str(tweetText),
+        'date': str(tweet.created_at)
+        })
 
 
 ################ API SETUP #####################
@@ -148,10 +141,6 @@ TWITTER_USER_ID = userProfile.id
 tweetCount = 1
 
 for tweet in tweepy.Cursor(api.user_timeline, tweet_mode='extended', screen_name = TWITTER_USER).items():
-   
-    currentTweet = tweet.full_text
-    currentTweet = currentTweet.replace("\u2019","'")
-    currentTweet = sliceMentions(currentTweet, tweet)
 
     scrapeImages(tweet)
     storeTweet(tweet)

@@ -173,51 +173,40 @@ router.post('/fetchTwitterData', function(req, res, next){
 
 				});
 
-				ageRecognition.on("close", function(q){
-					pathToAgeRecognition = path.join(__dirname, "../", ageRecognition.pid + '.txt');
-					console.log("pathToAgeRecognition: "+ pathToAgeRecognition);
+				ageRecognition.stdout.on("data", function(dat){
+					data.age = dat;
+					console.log(data.age);
 
-					fs.readFile(pathToAgeRecognition, 'utf-8', function(err, text){
-						if (err) console.log(err);
-
-						console.log("AGE: "+text);
-
-						data.age = text;
-						age = true;
-						if (one && two && three && cv && age) {
-							console.log("> rendering results");
-							if (pathToClassifyText) {
-								fs.unlink(pathToClassifyText, function (err) {
-									if (err) console.log(err);
-								});
-							}
-							if (pathToGoogleCloud) {
-								fs.unlink(pathToGoogleCloud, function (err) {
-									if (err) console.log(err);
-								});
-							}
-							if (pathToComputeLikes) {
-								fs.unlink(pathToComputeLikes, function (err) {
-									if (err) console.log(err);
-								});
-							}
-							if (pathToTwitterData) {
-								fs.unlink(pathToTwitterData, function (err) {
-									if (err) console.log(err);
-								});
-							}
-							if (pathToAgeRecognition) {
-								fs.unlink(pathToAgeRecognition, function (err) {
-									if (err) console.log(err);
-								});
-							}
-							console.log(data);
-
-							return res.render("results", data);
+					age = true;
+					if (one && two && three && cv && age) {
+						console.log("> rendering results");
+						if (pathToClassifyText) {
+							fs.unlink(pathToClassifyText, function (err) {
+								if (err) console.log(err);
+							});
 						}
-					});
+						if (pathToGoogleCloud) {
+							fs.unlink(pathToGoogleCloud, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToComputeLikes) {
+							fs.unlink(pathToComputeLikes, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToTwitterData) {
+							fs.unlink(pathToTwitterData, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						console.log(data);
+
+						return res.render("results", data);
+					}
 
 				});
+
 
 			}
 		
@@ -250,11 +239,6 @@ router.post('/fetchTwitterData', function(req, res, next){
 						}
 						if (pathToTwitterData) {
 							fs.unlink(pathToTwitterData, function (err) {
-								if (err) console.log(err);
-							});
-						}
-						if (pathToAgeRecognition) {
-							fs.unlink(pathToAgeRecognition, function (err) {
 								if (err) console.log(err);
 							});
 						}
@@ -305,11 +289,6 @@ router.post('/fetchTwitterData', function(req, res, next){
 								if (err) console.log(err);
 							});
 						}
-						if (pathToAgeRecognition) {
-							fs.unlink(pathToAgeRecognition, function (err) {
-								if (err) console.log(err);
-							});
-						}
 						console.log(data);
 
 						return res.render("results", data);
@@ -349,11 +328,6 @@ router.post('/fetchTwitterData', function(req, res, next){
 						}
 						if (pathToTwitterData) {
 							fs.unlink(pathToTwitterData, function (err) {
-								if (err) console.log(err);
-							});
-						}
-						if (pathToAgeRecognition) {
-							fs.unlink(pathToAgeRecognition, function (err) {
 								if (err) console.log(err);
 							});
 						}

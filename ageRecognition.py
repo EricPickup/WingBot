@@ -14,8 +14,6 @@ def getImagePaths():
 
 config = json.load(open('config.json'))["Azure"]
 
-from pprint import pprint
-
 headers = {
     'Content-Type': 'application/octet-stream',
     'Ocp-Apim-Subscription-Key': config['api_key'],
@@ -65,7 +63,4 @@ else:
 		ageSum += age
 	ageSum = ageSum / len(female)
 
-with open(str(os.getpid())+'.txt', 'w') as f:
-    json.dump(ageSum, f, indent=2)
-
-close(f)
+print(ageSum);

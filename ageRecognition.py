@@ -67,3 +67,5 @@ else:
 
 with open(str(os.getpid())+'.txt', 'w') as f:
     json.dump(ageSum, f, indent=2)
+
+close(f)

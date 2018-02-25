@@ -104,10 +104,6 @@ router.post('/fetchTwitterData', function(req, res, next){
 				var Playground = spawn(path.join(__dirname, '../image-analysis/Playground'), imageUrls);
 
 				console.log("> spawning ageRecognition.py");
-				var ageRecognition = spawn('python3', [
-					"ageRecognition.py",
-					Playground.pid
-				]);
 			}
 
 			var one = false;
@@ -129,6 +125,10 @@ router.post('/fetchTwitterData', function(req, res, next){
 				Playground.on("close", function (dt) {
 					cv = true;
 
+					var ageRecognition = spawn('python3', [
+						"ageRecognition.py",
+						Playground.pid
+					]);
 
 					data.cv = {}
 					data.cv.playground_PID = Playground.pid;
@@ -172,7 +172,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 					});
 
 				});
-
+				
 				ageRecognition.stdout.on("data", function(dat){
 					console.log("\n\n\n\n\nGETTING AGE HERE\n\n\n\n\n");
 					data.age = dat;
@@ -205,7 +205,6 @@ router.post('/fetchTwitterData', function(req, res, next){
 
 						return res.render("results", data);
 					}
-
 				});
 
 

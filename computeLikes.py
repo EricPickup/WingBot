@@ -30,20 +30,21 @@ def findKeywords(data, overallLikes):
 			for mention in entity.mentions:
 				if mention.sentiment.score:
 					entityName = entity.name.lower()
-					if float(mention.sentiment.score) > 0:
-						if entityName in overallLikes['dislikes']:
-							overallLikes['dislikes'][entityName] -= 1
-						elif entityName in overallLikes['likes']:
-							overallLikes['likes'][entityName] += 1
-						else:
-							overallLikes['likes'][entityName] = 1
-					elif float(mention.sentiment.score) < 0:
-						if entityName in overallLikes['likes']:
-							overallLikes['likes'][entityName] -= 1
-						elif entityName in overallLikes['dislikes']:
-							overallLikes['dislikes'][entityName] += 1
-						else:
-							overallLikes['dislikes'][entityName] = 1
+					if "http://" not in str(entityName) and "https://" not in str(entityName):
+						if float(mention.sentiment.score) > 0:
+							if entityName in overallLikes['dislikes']:
+								overallLikes['dislikes'][entityName] -= 1
+							elif entityName in overallLikes['likes']:
+								overallLikes['likes'][entityName] += 1
+							else:
+								overallLikes['likes'][entityName] = 1
+						elif float(mention.sentiment.score) < 0:
+							if entityName in overallLikes['likes']:
+								overallLikes['likes'][entityName] -= 1
+							elif entityName in overallLikes['dislikes']:
+								overallLikes['dislikes'][entityName] += 1
+							else:
+								overallLikes['dislikes'][entityName] = 1
 	topLikes = dict()
 	topLikes['likes'] = dict()
 	topLikes['dislikes'] = dict()

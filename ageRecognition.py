@@ -3,6 +3,7 @@ import urllib
 import requests
 import os
 import sys
+import math
 
 def getImagePaths():
 	paths = []
@@ -63,4 +64,4 @@ else:
 		ageSum += age
 	ageSum = ageSum / len(female)
 
-print(ageSum);
+print(math.floor(ageSum));

@@ -51,6 +51,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 	console.log(req.body);
 	req.body.handle = req.body.handle.replace("@", "");
 	var tweetLimit = 80;
+	var playCV = true;
 	var twitter_data = spawn('python', ["fetchTwitterData.py",
 		req.body.handle,
 		tweetLimit
@@ -86,14 +87,17 @@ router.post('/fetchTwitterData', function(req, res, next){
 			data = JSON.parse(text);
 			data.at = req.body.handle;
 			data.pp = data.profile_picture_url;
+			if (data.images > 0) playCV = false;
 
-			console.log("> spawning Playground");
-			console.log(data.images);
-			var imageUrls = data.images.map(function(image){
-				return image.URL;
-			});
-			console.log(imageUrls);
-			var Playground = spawn('../image-analysis/Playground', imageUrls);
+			if (playCV){
+				console.log("> spawning Playground");
+				console.log(data.images);
+				var imageUrls = data.images.map(function(image){
+					return image.URL;
+				});
+				console.log(imageUrls);
+				var Playground = spawn('../image-analysis/Playground', imageUrls);
+			}
 
 			// console.log("> formatting chart data");
 
@@ -154,54 +158,57 @@ router.post('/fetchTwitterData', function(req, res, next){
 			var two = false;
 			var three = false;
 			var cv = false;
+			if (!playCV) cv = true;
 
 			var pathToComputeLikes;
 			var pathToGoogleCloud;
 
-			Playground.on("close", function (dt) {
-				cv = true;
+			if (playCV){
+				Playground.on("close", function (dt) {
+					cv = true;
 
 
-				data.cv = {}
-				data.cv.playground_PID = Playground.getpid();
-				data.cv.photos = []
-				fs.readdir(path.join(__dirname, "../public/images/", Playground.getpid(), "/Faces"), function(err, pictures){
-					pictures.forEach(function(pic){
-						data.cv.photos.append({
-							url: path.join("/images/", Playground.getpid(), "/Faces/", pic)
+					data.cv = {}
+					data.cv.playground_PID = Playground.getpid();
+					data.cv.photos = []
+					fs.readdir(path.join(__dirname, "../public/images/", Playground.getpid(), "/Faces"), function(err, pictures){
+						pictures.forEach(function(pic){
+							data.cv.photos.append({
+								url: path.join("/images/", Playground.getpid(), "/Faces/", pic)
+							});
 						});
 					});
+
+
+
+					if (one && two && three && cv) {
+						console.log("> rendering results");
+						if (pathToClassifyText) {
+							fs.unlink(pathToClassifyText, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToGoogleCloud) {
+							fs.unlink(pathToGoogleCloud, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToComputeLikes) {
+							fs.unlink(pathToComputeLikes, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToTwitterData) {
+							fs.unlink(pathToTwitterData, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						console.log(data);
+
+						return res.render("results", data);
+					}
 				});
-
-
-
-				if (one && two && three && cv) {
-					console.log("> rendering results");
-					if (pathToClassifyText) {
-						fs.unlink(pathToClassifyText, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToGoogleCloud) {
-						fs.unlink(pathToGoogleCloud, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToComputeLikes) {
-						fs.unlink(pathToComputeLikes, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToTwitterData) {
-						fs.unlink(pathToTwitterData, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					console.log(data);
-
-					return res.render("results", data);
-				}
-			});
+			}
 		
 			console.log("> async: waiting for google_cloud.py to finish");
 			google_cloud.on("close", function(google_cloud_data){

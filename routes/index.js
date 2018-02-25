@@ -174,6 +174,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 				});
 
 				ageRecognition.stdout.on("data", function(dat){
+					console.log("\n\n\n\n\nGETTING AGE HERE\n\n\n\n\n");
 					data.age = dat;
 					console.log(data.age);
 

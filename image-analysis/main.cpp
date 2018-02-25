@@ -13,6 +13,7 @@
 
 #define FACE_CASCADE "Data/haarcascade_frontalface_alt.xml"
 #define MATCH_THRESH 0.45
+#define DISTORTION_SIZE 5
 
 using namespace cv;
 using namespace std;
@@ -49,11 +50,11 @@ int main(int arg_c, char** arg_v) {
 		MatND hist1;
 		cvtColor(face, cmp1, CV_BGR2GRAY);
 
-		Mat element = getStructuringElement(0, Size(5, 5), Point(2, 2));
+		Mat element = getStructuringElement(0, Size(DISTORTION_SIZE, DISTORTION_SIZE), Point(2, 2));
 
 		erode(cmp1, cmp1, element);
 		dilate(cmp1, cmp1, element);
-		GaussianBlur(cmp1, cmp1, Size(5, 5), 0, 0);
+		GaussianBlur(cmp1, cmp1, Size(DISTORTION_SIZE, DISTORTION_SIZE), 0, 0);
 
 		int bins = 256;
 		int hist_size[] = { bins };
@@ -71,7 +72,7 @@ int main(int arg_c, char** arg_v) {
 				cvtColor(faces[i][j], cmp2, CV_BGR2GRAY);
 				erode(cmp2, cmp2, element);
 				dilate(cmp2, cmp2, element);
-				GaussianBlur(cmp1, cmp1, Size(5, 5), 0, 0);
+				GaussianBlur(cmp1, cmp1, Size(DISTORTION_SIZE, DISTORTION_SIZE), 0, 0);
 
 				calcHist(&cmp2, 1, channels, Mat(), hist2, 1, hist_size, ranges);
 				rating += compareHist(hist1, hist2, 0);

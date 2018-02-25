@@ -46,19 +46,19 @@ def findKeywords(data, overallLikes):
 							else:
 								overallLikes['dislikes'][entityName] = 1
 	topLikes = dict()
-	topLikes['likes'] = dict()
-	topLikes['dislikes'] = dict()
+	topLikes['likes'] = []
+	topLikes['dislikes'] = []
 	count = 0
 	for word in sorted(overallLikes['likes'], key=overallLikes['likes'].get, reverse=True):
 		if overallLikes['likes'][word] > 0:
-			topLikes['likes'][word] = overallLikes['likes'][word]
+			topLikes['likes'].append(word)
 		count += 1
 		if count > MAX_TOP_LIKES:
 			break
 	count = 0
 	for word in sorted(overallLikes['dislikes'], key=overallLikes['dislikes'].get, reverse=True):
 		if overallLikes['dislikes'][word] > 0:
-			topLikes['dislikes'][word] = overallLikes['dislikes'][word]
+			topLikes['dislikes'].append(word)
 		count += 1
 		if count > MAX_TOP_LIKES:
 			break

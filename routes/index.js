@@ -174,10 +174,11 @@ router.post('/fetchTwitterData', function(req, res, next){
 				});
 
 				ageRecognition.on("close", function(q){
-					pathToAgeRecognition = path.join(__dirname, "../", Playground.pid + '.txt');
+					pathToAgeRecognition = path.join(__dirname, "../", ageRecognition.pid + '.txt');
 					console.log("pathToAgeRecognition: "+ pathToAgeRecognition);
 
 					fs.readFile(pathToAgeRecognition, 'utf-8', function(err, text){
+						if (err) console.log(err);
 
 						console.log("AGE: "+text);
 

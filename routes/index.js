@@ -87,6 +87,13 @@ router.post('/fetchTwitterData', function(req, res, next){
 			data.at = req.body.handle;
 			data.pp = data.profile_picture_url;
 
+			console.log("> spawning Playground");
+			var imageUrls = data.images.map(function(image){
+				return image.URL;
+			});
+			console.log(imageUrls);
+			var Playground = spawn('../image-analysis/Playground', imageUrls);
+
 			// console.log("> formatting chart data");
 
 			// var labels = [];
@@ -145,9 +152,55 @@ router.post('/fetchTwitterData', function(req, res, next){
 			var one = false;
 			var two = false;
 			var three = false;
+			var cv = false;
 
 			var pathToComputeLikes;
 			var pathToGoogleCloud;
+
+			Playground.on("close", function (dt) {
+				cv = true;
+
+
+				data.cv = {}
+				data.cv.playground_PID = Playground.getpid();
+				data.cv.photos = []
+				fs.readdir(path.join(__dirname, "../public/images/", Playground.getpid(), "/Faces"), function(err, pictures){
+					pictures.forEach(function(pic){
+						data.cv.photos.append({
+							url: path.join("/images/", Playground.getpid(), "/Faces/", pic)
+						});
+					});
+				});
+
+
+
+				if (one && two && three && cv) {
+					console.log("> rendering results");
+					if (pathToClassifyText) {
+						fs.unlink(pathToClassifyText, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToGoogleCloud) {
+						fs.unlink(pathToGoogleCloud, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToComputeLikes) {
+						fs.unlink(pathToComputeLikes, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToTwitterData) {
+						fs.unlink(pathToTwitterData, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					console.log(data);
+
+					return res.render("results", data);
+				}
+			});
 		
 			console.log("> async: waiting for google_cloud.py to finish");
 			google_cloud.on("close", function(google_cloud_data){
@@ -159,7 +212,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 					data.emotion = text;
 					console.log("> data.emotion set to "+data.emotion);
 					one = true;
-					if (one && two && three) {
+					if (one && two && three && cv) {
 						console.log("> rendering results");
 						if (pathToClassifyText) {
 							fs.unlink(pathToClassifyText, function (err) {
@@ -206,7 +259,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 					
 					two = true;
 
-					if (one && two && three) {
+					if (one && two && three && cv) {
 						console.log("> rendering results");
 						if (pathToClassifyText) {
 							fs.unlink(pathToClassifyText, function (err) {
@@ -248,7 +301,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 					data.categories = JSON.parse(text).categories;
 					console.log(data.categories);
 					three = true;
-					if (one && two && three) {
+					if (one && two && three && cv) {
 						console.log("> rendering results");
 						if (pathToClassifyText) {
 							fs.unlink(pathToClassifyText, function (err) {

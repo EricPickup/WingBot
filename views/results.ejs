@@ -27,6 +27,8 @@
 				<div class="col-s9">
 					<h4><span class="badge badge-secondary"><%= num_followers %></span> Followers</h4>
 					<h4><span class="badge badge-secondary"><%= num_following %></span> Following</h4>
+					<h4><span class="badge badge-secondary"><%= emotion %></span> on average</h4>
+					
 				</div>
 				<div class="col-s3">
 					<div class="card" style="width: 18rem; position: absolute; right: 3vw; top: 2vh;">
@@ -53,11 +55,9 @@
 							Likes
 						</div>
 						<ul class="list-group list-group-flush">
-							<% if (likes){ %>
-								<% for (var like in likes) { %>
+								<% likes.forEach(function(like){ %>
 									<li class="list-group-item"><%= like %></li>
-								<% } %>
-							<% } %>
+								<% }); %>
 						</ul>
 					</div>
 				</div>
@@ -66,12 +66,10 @@
 						<div class="card-header">
 							Dislikes
 						</div>
-						<ul class="list-group list-group-flush">
-							<% if (dislikes){ %>							
-								<% for (var dislike in dislikes) { %>							
-									<li class="list-group-item"><%= dislike %></li>
-								<% } %>
-							<% } %>
+						<ul class="list-group list-group-flush">							
+								<% dislikes.forEach(function(dislike){ %>							
+									<li class="list-group-item"><%= dislike %></li> 
+								<% }); %>
 						</ul>
 					</div>
 				</div>
@@ -81,11 +79,9 @@
 							Interests
 						</div>
 						<ul class="list-group list-group-flush">
-							<% if (categories){ %>
 								<% categories.forEach(function(cat){%>
 									<li class="list-group-item"><%= cat %></li>
 								<% }); %>
-							<% } %>
 						</ul>
 					</div>
 				</div>

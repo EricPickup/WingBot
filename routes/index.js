@@ -46,11 +46,11 @@ router.get("/error", function(req, res, next){
 
 router.post('/fetchTwitterData', function(req, res, next){
 
-
+	var data;
 	console.log("> spawning fetchTwitterData.py");
 	console.log(req.body);
 	req.body.handle = req.body.handle.replace("@", "");
-	var tweetLimit = 200;
+	var tweetLimit = 80;
 	var twitter_data = spawn('python', ["fetchTwitterData.py",
 		req.body.handle,
 		tweetLimit
@@ -142,7 +142,9 @@ router.post('/fetchTwitterData', function(req, res, next){
 			// 	}
 			// }
 
-			var doneCount = 0;
+			var one = false;
+			var two = false;
+			var three = false;
 
 			var pathToComputeLikes;
 			var pathToGoogleCloud;
@@ -156,36 +158,36 @@ router.post('/fetchTwitterData', function(req, res, next){
 					if (err) console.log(err);					
 					data.emotion = text;
 					console.log("> data.emotion set to "+data.emotion);
-					
+					one = true;
+					if (one && two && three) {
+						console.log("> rendering results");
+						if (pathToClassifyText) {
+							fs.unlink(pathToClassifyText, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToGoogleCloud) {
+							fs.unlink(pathToGoogleCloud, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToComputeLikes) {
+							fs.unlink(pathToComputeLikes, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToTwitterData) {
+							fs.unlink(pathToTwitterData, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						console.log(data);
+
+						return res.render("results", data);
+					}
 				});
 
-				doneCount++;
-				if (doneCount >= 3) {
-					console.log("> rendering results");
-					if (pathToClassifyText){
-						fs.unlink(pathToClassifyText, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToGoogleCloud){
-						fs.unlink(pathToGoogleCloud, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToComputeLikes){
-						fs.unlink(pathToComputeLikes, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToTwitterData){
-						fs.unlink(pathToTwitterData, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					console.log(data);
-					
-					return res.render("results", data);
-				}
+				
 			});
 
 			console.log("> async: waiting for computeLikes.py to finish");			
@@ -195,44 +197,45 @@ router.post('/fetchTwitterData', function(req, res, next){
 				console.log("> reading computeLikes.py output");				
 				fs.readFile(pathToComputeLikes, 'utf-8', function (err, text) {
 					if (err) console.log(err);
-					console.log("text: " + text);
 					text = JSON.parse(text);
-					console.log(JSON.stringify(text));
 					data.likes = text.likes;
-					console.log("> data.likes is set to " + JSON.stringify(data.likes));
+					console.log("> data.likes is set to " + data.likes);
 					data.dislikes = text.dislikes;
-					console.log("> data.dislikes is set to " + JSON.stringify(data.dislikes));
+					console.log("> data.dislikes is set to " + data.dislikes);
+					console.log(data);
 					
+					two = true;
+
+					if (one && two && three) {
+						console.log("> rendering results");
+						if (pathToClassifyText) {
+							fs.unlink(pathToClassifyText, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToGoogleCloud) {
+							fs.unlink(pathToGoogleCloud, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToComputeLikes) {
+							fs.unlink(pathToComputeLikes, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToTwitterData) {
+							fs.unlink(pathToTwitterData, function (err) {
+								if (err) console.log(err);
+							});
+						}
+
+						console.log(data);
+						return res.render("results", data);
+					}
 				});
 						
 
-				doneCount++;
-				if (doneCount >= 3) {
-					console.log("> rendering results");
-					if (pathToClassifyText) {
-						fs.unlink(pathToClassifyText, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToGoogleCloud) {
-						fs.unlink(pathToGoogleCloud, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToComputeLikes) {
-						fs.unlink(pathToComputeLikes, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToTwitterData) {
-						fs.unlink(pathToTwitterData, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					console.log(data);
-					return res.render("results", data);
-				}
-
+				
 			});
 
 			console.log("> async: waiting for classifyText.py to finish");
@@ -244,36 +247,40 @@ router.post('/fetchTwitterData', function(req, res, next){
 					if (err) console.log(err);
 					data.categories = JSON.parse(text).categories;
 					console.log(data.categories);
+					three = true;
+					if (one && two && three) {
+						console.log("> rendering results");
+						if (pathToClassifyText) {
+							fs.unlink(pathToClassifyText, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToGoogleCloud) {
+							fs.unlink(pathToGoogleCloud, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToComputeLikes) {
+							fs.unlink(pathToComputeLikes, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						if (pathToTwitterData) {
+							fs.unlink(pathToTwitterData, function (err) {
+								if (err) console.log(err);
+							});
+						}
+						console.log(data);
+
+						return res.render("results", data);
+					}
 				});
 
-				doneCount++;
-				if (doneCount >= 3) {
-					console.log("> rendering results");
-					if (pathToClassifyText) {
-						fs.unlink(pathToClassifyText, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToGoogleCloud) {
-						fs.unlink(pathToGoogleCloud, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToComputeLikes) {
-						fs.unlink(pathToComputeLikes, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					if (pathToTwitterData) {
-						fs.unlink(pathToTwitterData, function (err) {
-							if (err) console.log(err);
-						});
-					}
-					console.log(data);
-					
-					return res.render("results", data);
-				}
+				
 			});
+
+			
+			
 
 		});
 

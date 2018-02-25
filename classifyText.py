@@ -61,8 +61,10 @@ for category in sorted(catergoryDict, key=catergoryDict.get, reverse=True):
     counter += 1
     if(counter > 4):
         break
+    
 
-print(outdata)
+with open(str(os.getpid())+'.json', 'w') as f:
+    json.dump(outdata, f, indent=2)
 
 # text = "Google Home enables users to speak voice commands to interact with services through the Home's intelligent personal assistant called Google Assistant. A large number of services, both in-house and third-party, are integrated, allowing users to listen to music, look at videos or photos, or receive news updates entirely by voice. "
 

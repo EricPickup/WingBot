@@ -50,7 +50,7 @@ router.post('/fetchTwitterData', function(req, res, next){
 	console.log("> spawning fetchTwitterData.py");
 	console.log(req.body);
 	req.body.handle = req.body.handle.replace("@", "");
-	var tweetLimit = 20;
+	var tweetLimit = 100;
 	var twitter_data = spawn('python', ["fetchTwitterData.py",
 		req.body.handle,
 		tweetLimit
@@ -75,50 +75,75 @@ router.post('/fetchTwitterData', function(req, res, next){
 				"computeLikes.py",
 				path.join(__dirname, "../" + twitter_data.pid + ".json")
 			]);
+
+			console.log("> spawning classifyText.py");
+			var classifyText = spawn('python', [
+				"classifyText.py",
+				path.join(__dirname, "../" + twitter_data.pid + ".json")
+			]);
 			
 			console.log("> creating data object");
 			data = JSON.parse(text);
 			data.at = req.body.handle;
 			data.pp = data.profile_picture_url;
 
-			console.log("> formatting chart data");
-			data.chart = {
-				type: 'line',
-				data: {
-					labels: [],
-					datasets: [{
-						label: '# of Votes',
-						data: [12, 19, 3, 5, 2, 3],
-						backgroundColor: [
-							'rgba(255, 99, 132, 0.2)',
-							'rgba(54, 162, 235, 0.2)',
-							'rgba(255, 206, 86, 0.2)',
-							'rgba(75, 192, 192, 0.2)',
-							'rgba(153, 102, 255, 0.2)',
-							'rgba(255, 159, 64, 0.2)'
-						],
-						borderColor: [
-							'rgba(255,99,132,1)',
-							'rgba(54, 162, 235, 1)',
-							'rgba(255, 206, 86, 1)',
-							'rgba(75, 192, 192, 1)',
-							'rgba(153, 102, 255, 1)',
-							'rgba(255, 159, 64, 1)'
-						],
-						borderWidth: 1
-					}]
-				},
-				options: {
-					scales: {
-						yAxes: [{
-							ticks: {
-								beginAtZero: true
-							}
-						}]
-					}
-				}
+			// console.log("> formatting chart data");
 
-			var ready = false;
+			// var labels = [];
+			// var values = [];
+			// var dayCount = -1;
+
+			// data.direct_tweets.forEach(function(tweet){
+			// 	let day = tweet.date.substring(0, 10);
+			// 	let index = labels.indexOf(day);
+			// 	if (index == -1){
+			// 		labels.push(day);
+			// 		values.push(1);
+			// 	}
+			// 	else{
+			// 		values[index]++;
+			// 	}
+			// });
+
+			// data.chart = {
+			// 	type: 'line',
+			// 		data: {
+			// 		labels: labels,
+			// 			datasets: [{
+			// 				label: '# of Tweets / Day',
+			// 				data: values,
+			// 				backgroundColor: [
+			// 					'rgba(255, 99, 132, 0.2)',
+			// 					'rgba(54, 162, 235, 0.2)',
+			// 					'rgba(255, 206, 86, 0.2)',
+			// 					'rgba(75, 192, 192, 0.2)',
+			// 					'rgba(153, 102, 255, 0.2)',
+			// 					'rgba(255, 159, 64, 0.2)'
+			// 				],
+			// 				borderColor: [
+			// 					'rgba(255,99,132,1)',
+			// 					'rgba(54, 162, 235, 1)',
+			// 					'rgba(255, 206, 86, 1)',
+			// 					'rgba(75, 192, 192, 1)',
+			// 					'rgba(153, 102, 255, 1)',
+			// 					'rgba(255, 159, 64, 1)'
+			// 				],
+			// 				borderWidth: 1
+			// 			}]
+			// 	},
+			// 	options: {
+			// 		scales: {
+			// 			yAxes: [{
+			// 				ticks: {
+			// 					beginAtZero: true
+			// 				}
+			// 			}]
+			// 		}
+			// 	}
+			// }
+
+			var doneCount = 0;
+
 			var pathToComputeLikes;
 			var pathToGoogleCloud;
 		
@@ -131,28 +156,34 @@ router.post('/fetchTwitterData', function(req, res, next){
 					if (err) console.log(err);					
 					data.emotion = text;
 					console.log("> data.emotion set to "+data.emotion);
-				});
-				console.log("> finish ready state is "+ready);
-				if (ready){
-					console.log("> deleting extra files");
-					fs.unlink(pathToComputeLikes, function (err) {
-						if (err) console.log(err);
-					});
-					fs.unlink(pathToGoogleCloud, function (err) {
-						if (err) console.log(err);
-					});
-					fs.unlink(pathToTwitterData, function (err) {
-						if (err) console.log(err);
-					});
 					
+				});
+
+				doneCount++;
+				if (doneCount >= 3) {
 					console.log("> rendering results");
+					if (pathToClassifyText){
+						fs.unlink(pathToClassifyText, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToGoogleCloud){
+						fs.unlink(pathToGoogleCloud, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToComputeLikes){
+						fs.unlink(pathToComputeLikes, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToTwitterData){
+						fs.unlink(pathToTwitterData, function (err) {
+							if (err) console.log(err);
+						});
+					}
 					return res.render("results", data);
 				}
-				else{
-					console.log("> setting 'finish ready to true");					
-					ready = true;
-				}
-
 			});
 
 			console.log("> async: waiting for computeLikes.py to finish");			
@@ -168,33 +199,75 @@ router.post('/fetchTwitterData', function(req, res, next){
 					console.log("> data.likes is set to " + data.likes);
 					data.dislikes = text.dislikes;
 					console.log("> data.dislikes is set to " + data.likes);
+					
 				});
 						
 
-				console.log("> finish ready state is " + ready);				
-				if (ready) {
-					console.log("> deleting extra files");
-					fs.unlink(pathToComputeLikes, function (err) {
-						if (err) console.log(err);
-					});
-					fs.unlink(pathToGoogleCloud, function (err) {
-						if (err) console.log(err);
-					});
-					fs.unlink(pathToTwitterData, function (err) {
-						if (err) console.log(err);
-					});
-
+				doneCount++;
+				if (doneCount >= 3) {
 					console.log("> rendering results");
+					if (pathToClassifyText) {
+						fs.unlink(pathToClassifyText, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToGoogleCloud) {
+						fs.unlink(pathToGoogleCloud, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToComputeLikes) {
+						fs.unlink(pathToComputeLikes, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToTwitterData) {
+						fs.unlink(pathToTwitterData, function (err) {
+							if (err) console.log(err);
+						});
+					}
 					return res.render("results", data);
-				}
-				else {
-					console.log("> setting finish ready to true");										
-					ready = true;
 				}
 
 			});
 
+			console.log("> async: waiting for classifyText.py to finish");
+			classifyText.on("close", function (classify_text_data) {
+				pathToClassifyText = path.join(__dirname, "../", classifyText.pid + '.json');
 
+				console.log("> reading classifyText.py output");
+				fs.readFile(pathToClassifyText, 'utf-8', function (err, text) {
+					if (err) console.log(err);
+					data.categories = JSON.parse(text).categories;
+					console.log(data.categories);
+				});
+
+				doneCount++;
+				if (doneCount >= 3) {
+					console.log("> rendering results");
+					if (pathToClassifyText) {
+						fs.unlink(pathToClassifyText, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToGoogleCloud) {
+						fs.unlink(pathToGoogleCloud, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToComputeLikes) {
+						fs.unlink(pathToComputeLikes, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					if (pathToTwitterData) {
+						fs.unlink(pathToTwitterData, function (err) {
+							if (err) console.log(err);
+						});
+					}
+					return res.render("results", data);
+				}
+			});
 
 		});
 
